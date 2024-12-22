@@ -3,7 +3,7 @@ import { Product } from '../types/product';
 export const products: Product[] = [
   {
     id: '1',
-    name: 'Classic School Backpack',
+    name: "Columbia 'L' School Backpack",
     description: 'Durable and spacious backpack perfect for students',
     price: 49.99,
     category: 'school-bags',
