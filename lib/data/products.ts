@@ -5,9 +5,9 @@ export const products: Product[] = [
     id: '1',
     name: "Columbia 'L' School Backpack",
     description: 'Durable and spacious backpack perfect for students',
-    price: 49.99,
+    price: 2099,
     category: 'school-bags',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/images/products/columbiaL_main.png',
     isNewArrival: true
   },
   {

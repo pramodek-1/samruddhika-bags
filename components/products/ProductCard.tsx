@@ -37,14 +37,14 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.isOnSale ? (
             <>
               <span className="text-lg font-bold text-destructive">
-                ${product.salePrice?.toFixed(2)}
+                LKR {product.salePrice?.toFixed(2)}
               </span>
               <span className="text-sm line-through text-muted-foreground">
-                ${product.price.toFixed(2)}
+                LKR {product.price.toFixed(2)}
               </span>
             </>
           ) : (
-            <span className="text-lg font-bold">${product.price.toFixed(2)}</span>
+            <span className="text-lg font-bold">LKR {product.price.toFixed(2)}</span>
           )}
         </div>
       </CardContent>
