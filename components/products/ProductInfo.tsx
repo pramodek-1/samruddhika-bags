@@ -43,11 +43,17 @@ export function ProductInfo({
         return 'bg-red-500'
       case 'black':
         return 'bg-black'
-      case 'blue':
+      case 'dark blue':
+        return 'bg-blue-900'
+      case 'light blue':
         return 'bg-blue-600'
       default:
         return 'bg-gray-500'
     }
+  }
+
+  const isColorOutOfStock = (color: string) => {
+    return product.outOfStock?.includes(color)
   }
 
   return (
@@ -56,30 +62,39 @@ export function ProductInfo({
         <Badge className="mb-2">{product.brand}</Badge>
         <h1 className="text-3xl font-bold mb-2">{product.name}</h1>
         <div className="flex items-baseline gap-2">
-          <p className="text-2xl font-semibold text-primary">${product.price.toFixed(2)}</p>
+          <p className="text-2xl font-semibold text-primary">LKR {product.price.toFixed(2)}</p>
           <span className="text-sm text-gray-500">per item</span>
         </div>
       </div>
-      
+
       <div className="space-y-4">
         <div>
           <h2 className="text-lg font-semibold mb-3">Color</h2>
-          <RadioGroup value={selectedColor} onValueChange={onColorChange} className="flex gap-3">
+          <RadioGroup value={selectedColor} onValueChange={onColorChange} className="flex flex-wrap gap-3">
             {product.variations.color.map((color) => (
               <Label
                 key={color}
                 className={`cursor-pointer flex items-center space-x-2 border rounded-lg p-3 
                   hover:bg-accent transition-colors
-                  ${selectedColor === color ? 'border-primary bg-accent' : 'border-input'}`}
+                  ${selectedColor === color ? 'border-primary bg-accent' : 'border-input'}
+                  ${isColorOutOfStock(color) ? 'opacity-50 cursor-not-allowed' : ''}`}
               >
-                <RadioGroupItem value={color} id={`color-${color}`} className="sr-only" />
+                <RadioGroupItem
+                  value={color}
+                  id={`color-${color}`}
+                  className="sr-only"
+                  disabled={isColorOutOfStock(color)}
+                />
                 <div className={`w-4 h-4 rounded-full ${getColorClass(color)}`} />
                 <span>{color}</span>
+                {isColorOutOfStock(color) && (
+                  <span className="text-xs text-red-500 ml-1">(Out of Stock)</span>
+                )}
               </Label>
             ))}
           </RadioGroup>
         </div>
-        
+
         {product.variations.size.length > 1 && (
           <div>
             <h2 className="text-lg font-semibold mb-3">Size</h2>
@@ -98,7 +113,7 @@ export function ProductInfo({
             </RadioGroup>
           </div>
         )}
-        
+
         <div>
           <h2 className="text-lg font-semibold mb-3">Quantity</h2>
           <div className="flex items-center gap-4">
@@ -111,21 +126,32 @@ export function ProductInfo({
               className="w-20 px-3 py-2 border rounded-md"
             />
             <span className="text-sm text-gray-500">
-              Total: <span className="font-semibold text-primary">${totalPrice.toFixed(2)}</span>
+              Total: <span className="font-semibold text-primary">LKR {totalPrice.toFixed(2)}</span>
             </span>
           </div>
         </div>
       </div>
-      
+
       <div className="space-y-3">
-        <Button onClick={handleAddToCart} className="w-full" size="lg">
-          Add to Cart - ${totalPrice.toFixed(2)}
+        <Button
+          variant="outline"
+          onClick={handleAddToCart}
+          className="w-full"
+          size="lg"
+          disabled={isColorOutOfStock(selectedColor)}
+        >
+          {isColorOutOfStock(selectedColor) ? 'Out of Stock' : `Add to Cart - LKR ${totalPrice.toFixed(2)}`}
         </Button>
-        <Button variant="outline" className="w-full" size="lg">
+        <Button
+
+          className="w-full"
+          size="lg"
+          disabled={isColorOutOfStock(selectedColor)}
+        >
           Buy Now
         </Button>
       </div>
-      
+
       <div className="prose prose-sm">
         <p>{product.description}</p>
       </div>
