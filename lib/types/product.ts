@@ -1,9 +1,10 @@
 export interface Product {
   id: string;
   name: string;
-  description: string;
+  brand?: string;
+  category?: string;
+  description?: string;
   price: number;
-  category: string;
   image: string;
   isNewArrival?: boolean;
   isOnSale?: boolean;

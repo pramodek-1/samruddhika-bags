@@ -4,12 +4,12 @@ import React, { useState, useEffect } from 'react';
 import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { Button } from './ui/button';
-import { Input } from './ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from './ui/sheet';
-import { Menu, Sun, Moon, ShoppingBag, Search } from 'lucide-react';
+import { Menu, Sun, Moon, ShoppingBag, Search as SearchIcon } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
 import { Badge } from './ui/badge';
 import Sidebar from './Sidebar';
+import { Search } from './Search';
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -58,7 +58,7 @@ const Navbar = () => {
               size="icon"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
-              <Search />
+              <SearchIcon />
             </Button>
 
             <Link href="/cart">
@@ -89,15 +89,7 @@ const Navbar = () => {
           </div>
         </div>
 
-        {isSearchOpen && (
-          <div className="py-2">
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="w-full"
-            />
-          </div>
-        )}
+        <Search isOpen={isSearchOpen} onClose={() => setIsSearchOpen(false)} />
       </div>
     </nav>
   );
