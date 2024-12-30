@@ -7,12 +7,15 @@ import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from './ui/sheet';
 import { Menu, Sun, Moon, ShoppingBag, Search } from 'lucide-react';
+import { useCart } from '@/lib/context/CartContext';
+import { Badge } from './ui/badge';
 import Sidebar from './Sidebar';
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { totalItems } = useCart();
 
   // Prevent hydration mismatch by mounting after initial render
   useEffect(() => {
@@ -43,8 +46,8 @@ const Navbar = () => {
                 <img src="/images/logo_l.png" width="50" height="50" alt="Light Mode Logo" />
               )}
               <main className="flex flex-col items-center justify-center gap-0.1">
-              <span className="text-2xl font-bold font-titles">SAMRUDDHIKA BAGS</span>
-              <span className="text-xs text-gray-500 font-medium mt-0.1">The Best Place to Buy Bags</span>
+                <span className="text-2xl font-bold font-titles">SAMRUDDHIKA BAGS</span>
+                <span className="text-xs text-gray-500 font-medium mt-0.1">The Best Place to Buy Bags</span>
               </main>
             </Link>
           </div>
@@ -57,6 +60,20 @@ const Navbar = () => {
             >
               <Search />
             </Button>
+
+            <Link href="/cart">
+              <Button variant="ghost" size="icon" className="relative">
+                <ShoppingBag />
+                {totalItems > 0 && (
+                  <Badge 
+                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    variant="destructive"
+                  >
+                    {totalItems}
+                  </Badge>
+                )}
+              </Button>
+            </Link>
 
             <Sheet>
               <SheetTrigger asChild>

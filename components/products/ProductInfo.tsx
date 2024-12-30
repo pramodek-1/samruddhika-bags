@@ -1,9 +1,13 @@
+'use client';
+
 import { useState, useEffect } from 'react'
 import { Product } from '@/components/data/productData'
 import { Button } from '@/components/ui/button'
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
+import { useCart } from '@/lib/context/CartContext'
+import { toast } from 'sonner'
 
 interface ProductInfoProps {
   product: Product
@@ -22,19 +26,23 @@ export function ProductInfo({
 }: ProductInfoProps) {
   const [quantity, setQuantity] = useState(1)
   const [totalPrice, setTotalPrice] = useState(product.price)
+  const { addToCart } = useCart()
 
   useEffect(() => {
     setTotalPrice(product.price * quantity)
   }, [product.price, quantity])
 
   const handleAddToCart = () => {
-    console.log('Added to cart:', {
-      ...product,
-      color: selectedColor,
-      size: selectedSize,
-      quantity,
-      totalPrice,
-    })
+    const colorImage = product.images?.[selectedColor]?.[0] || product.image;
+    
+    addToCart(
+      product, 
+      quantity, 
+      selectedColor, 
+      selectedSize,
+      colorImage
+    );
+    toast.success(`${product.name} has been added to your cart`)
   }
 
   const getColorClass = (color: string) => {
@@ -143,7 +151,6 @@ export function ProductInfo({
           {isColorOutOfStock(selectedColor) ? 'Out of Stock' : `Add to Cart - LKR ${totalPrice.toFixed(2)}`}
         </Button>
         <Button
-
           className="w-full"
           size="lg"
           disabled={isColorOutOfStock(selectedColor)}

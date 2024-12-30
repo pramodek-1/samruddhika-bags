@@ -2,10 +2,11 @@ import './globals.css';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { ThemeProvider } from '@/components/theme-provider';
+import { CartProvider } from '@/lib/context/CartContext';
 import Header from '@/components/Header';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import { Toaster } from '@/components/ui/toaster';
+import { Toaster } from 'sonner';
 import FloatingButton from '@/components/FloatingButton';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -29,12 +30,21 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Header />
-          <Navbar />
-          {children}
-          <Footer />
-          <FloatingButton />
-          <Toaster />
+          <CartProvider>
+            <Header />
+            <Navbar />
+            {children}
+            <Footer />
+            <FloatingButton />
+            <Toaster
+              position="bottom-center"
+              expand={true}
+              closeButton
+              style={{
+                marginTop: '4rem'
+              }}
+            />
+          </CartProvider>
         </ThemeProvider>
       </body>
     </html>
