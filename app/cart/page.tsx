@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
+import Link from 'next/link';
 
 export default function CartPage() {
   const { 
@@ -26,7 +27,7 @@ export default function CartPage() {
               <ShoppingBag className="h-12 w-12 mx-auto mb-4" />
               <p>Your cart is empty</p>
               <Button className="mt-4" asChild>
-                <a href="/">Continue Shopping</a>
+                <Link href="/">Continue Shopping</Link>
               </Button>
             </div>
           </CardContent>
@@ -102,8 +103,10 @@ export default function CartPage() {
                   </div>
                 </div>
               </div>
-              <Button className="w-full mt-6">
-                Checkout
+              <Button className="w-full mt-6" asChild>
+                <Link href="/checkout">
+                  Proceed to Checkout
+                </Link>
               </Button>
             </CardContent>
           </Card>
