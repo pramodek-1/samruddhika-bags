@@ -1,10 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
-  eslint: {
-    ignoreDuringBuilds: true,
+  experimental: {
+    appDir: true,
   },
-  images: { unoptimized: true },
-};
+  webpack: (config) => {
+    config.resolve.fallback = {
+      "react/jsx-runtime": "react/jsx-runtime.js",
+      "react": "react",
+    };
+    return config;
+  },
+}
 
-module.exports = nextConfig;
+module.exports = nextConfig

@@ -10,12 +10,15 @@ import { useCart } from '@/lib/context/CartContext';
 import { Badge } from './ui/badge';
 import Sidebar from './Sidebar';
 import { Search } from './Search';
+import { useSession, signOut } from 'next-auth/react';
+import { RiAccountCircleFill } from "react-icons/ri";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
   const [mounted, setMounted] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { totalItems } = useCart();
+  const { data: session } = useSession();
 
   // Prevent hydration mismatch by mounting after initial render
   useEffect(() => {
@@ -86,6 +89,31 @@ const Navbar = () => {
                 <Sidebar />
               </SheetContent>
             </Sheet>
+
+            {session ? (
+              <div className="flex items-center gap-4">
+                <span className="text-sm hidden sm:inline">
+                  {session.user?.name}
+                </span>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => signOut()}
+                >
+                  Sign Out
+                </Button>
+              </div>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+              >
+                <Link href="/auth/signin">
+                <RiAccountCircleFill className="h-6 w-6" />
+                </Link>
+              </Button>
+            )}
           </div>
         </div>
 

@@ -8,6 +8,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import { Toaster } from 'sonner';
 import FloatingButton from '@/components/FloatingButton';
+import { AuthProvider } from '@/components/providers/AuthProvider';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -24,28 +25,30 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <CartProvider>
-            <Header />
-            <Navbar />
-            {children}
-            <Footer />
-            <FloatingButton />
-            <Toaster
-              position="bottom-center"
-              expand={true}
-              closeButton
-              style={{
-                marginTop: '4rem'
-              }}
-            />
-          </CartProvider>
-        </ThemeProvider>
+        <AuthProvider>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <CartProvider>
+              <Header />
+              <Navbar />
+              {children}
+              <Footer />
+              <FloatingButton />
+              <Toaster
+                position="bottom-center"
+                expand={true}
+                closeButton
+                style={{
+                  marginTop: '4rem'
+                }}
+              />
+            </CartProvider>
+          </ThemeProvider>
+        </AuthProvider>
       </body>
     </html>
   );
