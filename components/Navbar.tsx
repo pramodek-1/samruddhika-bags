@@ -12,6 +12,17 @@ import Sidebar from './Sidebar';
 import { Search } from './Search';
 import { useSession, signOut } from 'next-auth/react';
 import { RiAccountCircleFill } from "react-icons/ri";
+import {
+
+  DropdownMenu,
+
+  DropdownMenuContent,
+
+  DropdownMenuItem,
+
+  DropdownMenuTrigger,
+
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -68,7 +79,7 @@ const Navbar = () => {
               <Button variant="ghost" size="icon" className="relative">
                 <ShoppingBag />
                 {totalItems > 0 && (
-                  <Badge 
+                  <Badge
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
                     variant="destructive"
                   >
@@ -77,6 +88,31 @@ const Navbar = () => {
                 )}
               </Button>
             </Link>
+
+            {session ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <RiAccountCircleFill className="h-6 w-6" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => signOut()}>
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+              >
+                <Link href="/auth/signin">
+                  <RiAccountCircleFill className="h-6 w-6" />
+                </Link>
+              </Button>
+            )}
 
             <Sheet>
               <SheetTrigger asChild>
@@ -89,31 +125,6 @@ const Navbar = () => {
                 <Sidebar />
               </SheetContent>
             </Sheet>
-
-            {session ? (
-              <div className="flex items-center gap-4">
-                <span className="text-sm hidden sm:inline">
-                  {session.user?.name}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => signOut()}
-                >
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <Button
-                variant="ghost"
-                size="icon"
-                asChild
-              >
-                <Link href="/auth/signin">
-                <RiAccountCircleFill className="h-6 w-6" />
-                </Link>
-              </Button>
-            )}
           </div>
         </div>
 
