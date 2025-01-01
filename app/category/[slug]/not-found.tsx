@@ -1,16 +1,18 @@
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 
-export default function NotFound() {
+const NotFound = () => {
   return (
-    <div className="container mx-auto px-4 py-16 text-center">
-      <h2 className="text-3xl font-bold mb-4">Category Not Found</h2>
-      <p className="text-muted-foreground mb-8">
-        Sorry, we couldn't find the category you're looking for.
+    <div className="flex flex-col items-center justify-center min-h-screen">
+      <h1 className="text-4xl font-bold mb-4">404 - Not Found</h1>
+      <p className="text-lg mb-4">
+        We couldn&apos;t find the category you&apos;re looking for.
       </p>
-      <Button asChild>
-        <Link href="/">Return Home</Link>
-      </Button>
+      <Link href="/" className="text-blue-500 hover:underline">
+        Return to Home
+      </Link>
     </div>
-  );
+  )
 }
+
+export default NotFound

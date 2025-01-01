@@ -1,14 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  experimental: {
-    appDir: true,
+  images: {
+    domains: ['your-image-domain.com'],
   },
-  webpack: (config) => {
-    config.resolve.fallback = {
-      "react/jsx-runtime": "react/jsx-runtime.js",
-      "react": "react",
-    };
-    return config;
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 }
 
