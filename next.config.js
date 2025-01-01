@@ -1,12 +1,15 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  images: {
-    domains: ['your-image-domain.com'],
+  experimental: {
+    appDir: true,
   },
-  eslint: {
-    // Temporarily ignore ESLint during builds until we fix all issues
-    ignoreDuringBuilds: true,
-  }
+  webpack: (config) => {
+    config.resolve.fallback = {
+      "react/jsx-runtime": "react/jsx-runtime.js",
+      "react": "react",
+    };
+    return config;
+  },
 }
 
 module.exports = nextConfig
