@@ -62,6 +62,7 @@ export const product: Product = {
     size: ["One Size"],
   },
   outOfStock: ["Light Blue"],
+  image: "/images/products/columbiaL_all.jpg",
 };
 
 export const relatedProducts: Product[] = [
@@ -79,6 +80,7 @@ export const relatedProducts: Product[] = [
       color: ["Black"],
       size: ["One Size"],
     },
+    image: "/placeholder.svg?height=400&width=400&text=FILA+Classic+Duffel",
   },
   {
     id: "3",
@@ -94,6 +96,7 @@ export const relatedProducts: Product[] = [
       color: ["Black"],
       size: ["One Size"],
     },
+    image: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
   },
 ];
 
