@@ -3,58 +3,58 @@ import { Product } from '../types/product';
 export const products: Product[] = [
   {
     id: '1',
-    name: "Columbia 'L' School Backpack",
+    name: "Columbia 'L' School BackPack",
     description: 'Durable and spacious backpack perfect for students',
-    price: 2099,
+    price: 1999,
     category: 'school-bags',
     image: '/images/products/columbiaL_main.png',
     isNewArrival: true
   },
   {
     id: '2',
-    name: 'Premium Leather Handbag',
+    name: 'Field School BackPack',
     description: 'Elegant leather handbag for everyday use',
-    price: 89.99,
+    price: 2199,
     category: 'hand-bags',
-    image: 'https://images.unsplash.com/photo-1584917865442-de89df76afd3?auto=format&fit=crop&q=80',
+    image: '/images/products/field_main.jpg',
     isOnSale: true,
-    salePrice: 69.99
+    salePrice: 1999
   },
   {
     id: '3',
-    name: 'Travel Duffel Bag',
+    name: 'XG School-Travel BackPack',
     description: 'Spacious duffel bag perfect for weekend getaways',
-    price: 79.99,
+    price: 3099,
     category: 'travelling-bags',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?auto=format&fit=crop&q=80',
+    image: '/images/products/XG_main.jpg',
     isNewArrival: true
   },
   {
     id: '4',
-    name: 'Kids School Bag',
+    name: 'Weizhina School-Class Bag',
     description: 'Colorful and lightweight bag for pre-school children',
-    price: 34.99,
+    price: 1650,
     category: 'pre-school-bags',
-    image: 'https://images.unsplash.com/photo-1558769132-cb1aea458c5e?auto=format&fit=crop&q=80',
+    image: '/images/products/weizhina_main.jpg',
     isNewArrival: true
   },
   {
     id: '5',
-    name: 'Compact Pocket Bag',
+    name: "Office Bag 'S'",
     description: 'Small and convenient bag for daily essentials',
-    price: 29.99,
+    price: 1950,
     category: 'pocket-bags',
-    image: 'https://images.unsplash.com/photo-1548863227-3af567fc3b27?auto=format&fit=crop&q=80',
+    image: '/images/products/lapS_main.jpg',
     isOnSale: true,
-    salePrice: 24.99
+    salePrice: 1750
   },
   {
     id: '6',
-    name: 'Student Class Bag',
+    name: "Travelling 'M' Bag",
     description: 'Perfect bag for carrying books and supplies',
-    price: 44.99,
+    price: 1350,
     category: 'class-bags',
-    image: 'https://images.unsplash.com/photo-1591375275624-c2f9bb480238?auto=format&fit=crop&q=80',
+    image: '/images/products/travellingM_main.jpg',
     isNewArrival: true
   }
 ];
