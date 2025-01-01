@@ -5,13 +5,14 @@ import { useTheme } from 'next-themes';
 import Link from 'next/link';
 import { Button } from './ui/button';
 import { Sheet, SheetContent, SheetTrigger, SheetTitle } from './ui/sheet';
-import { Menu, Sun, Moon, ShoppingBag, Search as SearchIcon } from 'lucide-react';
+import { Menu, Sun, Moon, Search as SearchIcon } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
 import { Badge } from './ui/badge';
 import Sidebar from './Sidebar';
 import { Search } from './Search';
 import { useSession, signOut } from 'next-auth/react';
 import { RiAccountCircleFill } from "react-icons/ri";
+import { FaShoppingCart } from "react-icons/fa";
 import {
 
   DropdownMenu,
@@ -77,7 +78,7 @@ const Navbar = () => {
 
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
-                <ShoppingBag />
+              <FaShoppingCart className="h-5 w-5" />
                 {totalItems > 0 && (
                   <Badge
                     className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"

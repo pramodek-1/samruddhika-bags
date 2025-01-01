@@ -15,7 +15,7 @@ export const products: Product[] = [
     name: 'Field School BackPack',
     description: 'Elegant leather handbag for everyday use',
     price: 2199,
-    category: 'hand-bags',
+    category: 'school-bags',
     image: '/images/products/field_main.jpg',
     isOnSale: true,
     salePrice: 1999
@@ -25,7 +25,7 @@ export const products: Product[] = [
     name: 'XG School-Travel BackPack',
     description: 'Spacious duffel bag perfect for weekend getaways',
     price: 3099,
-    category: 'travelling-bags',
+    category: 'school-bags',
     image: '/images/products/XG_main.jpg',
     isNewArrival: true
   },
@@ -34,7 +34,7 @@ export const products: Product[] = [
     name: 'Weizhina School-Class Bag',
     description: 'Colorful and lightweight bag for pre-school children',
     price: 1650,
-    category: 'pre-school-bags',
+    category: 'class-bags',
     image: '/images/products/weizhina_main.jpg',
     isNewArrival: true
   },
@@ -43,7 +43,7 @@ export const products: Product[] = [
     name: "Office Bag 'S'",
     description: 'Small and convenient bag for daily essentials',
     price: 1950,
-    category: 'pocket-bags',
+    category: 'travelling-bags',
     image: '/images/products/lapS_main.jpg',
     isOnSale: true,
     salePrice: 1750
@@ -53,7 +53,7 @@ export const products: Product[] = [
     name: "Travelling 'M' Bag",
     description: 'Perfect bag for carrying books and supplies',
     price: 1350,
-    category: 'class-bags',
+    category: 'travelling-bags',
     image: '/images/products/travellingM_main.jpg',
     isNewArrival: true
   }

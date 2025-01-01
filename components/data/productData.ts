@@ -12,6 +12,8 @@ export interface Product {
     size: string[];
   };
   brand: string;
+  outOfStock?: string[];
+  image: string;
 }
 
 export const product: Product = {
