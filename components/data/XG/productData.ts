@@ -73,7 +73,7 @@ export const product: Product = {
     color: ["Red", "Black", "Dark Blue", "Light Blue"],
     size: ["One Size"],
   },
-  
+  image: "/images/products/XG_all.jpg",
 };
 
 export const relatedProducts: Product[] = [
