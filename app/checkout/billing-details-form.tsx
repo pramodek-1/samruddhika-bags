@@ -64,6 +64,8 @@ export function BillingDetailsForm({ formData, onChange }: BillingDetailsFormPro
           placeholder="Ex: 0724149720"
           type="tel" 
           required 
+          value={formData.phone}
+          onChange={onChange}
           inputMode="numeric" 
           pattern="[0-9]*"
           onKeyPress={(e) => {

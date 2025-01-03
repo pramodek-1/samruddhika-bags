@@ -49,16 +49,34 @@ export default function CheckoutPage() {
   };
 
   const validateForm = () => {
-    const requiredFields = ['firstName', 'lastName', 'email', 'phone', 'state', 'district', 'street', 'city'];
-    const emptyFields = requiredFields.filter(field => !formData[field as keyof FormData]);
+    const requiredFields = [
+      'firstName',
+      'lastName',
+      'email',
+      'phone',
+      'state',
+      'district',
+      'street',
+      'city'
+    ];
     
-    if (emptyFields.length > 0) {
-      toast.error('Please fill in all required fields');
-      return false;
+    // Log the form data to debug
+    console.log('Form Data:', formData);
+    
+    for (const field of requiredFields) {
+      if (!formData[field as keyof FormData]?.trim()) {
+        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+        return false;
+      }
     }
 
     if (!formData.email.includes('@')) {
       toast.error('Please enter a valid email address');
+      return false;
+    }
+
+    if (!formData.phone.match(/^\d{10}$/)) {
+      toast.error('Please enter a valid 10-digit phone number');
       return false;
     }
 
@@ -73,13 +91,28 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // Here you would typically send the order to your backend
-      await new Promise(resolve => setTimeout(resolve, 1500)); // Simulating API call
+      // Simulating API call with proper typing
+      const response: { success: boolean } = await new Promise((resolve, reject) => {
+        setTimeout(() => {
+          if (Math.random() > 0.5) { // Simulate success/failure randomly
+            resolve({ success: true });
+          } else {
+            reject(new Error('Order processing failed'));
+          }
+        }, 1500);
+      });
 
-      toast.success('Order placed successfully!');
-      clearCart();
-      router.push('/order-success'); // Create this page to show order confirmation
+      if (response.success) {
+        toast.success('Order placed successfully!');
+        clearCart();
+        
+        // Wait for toast to show before redirecting
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        router.push('/order-success');
+      }
+
     } catch (error) {
+      console.error('Order submission error:', error);
       toast.error('Failed to place order. Please try again.');
     } finally {
       setIsSubmitting(false);
