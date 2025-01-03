@@ -50,6 +50,12 @@ const Sidebar = () => {
             </Button>
           </Link>
 
+          <Link href="/products/all">
+            <Button variant="ghost" className="w-full justify-start">
+              Products
+            </Button>
+          </Link>
+
           <Accordion type="single" collapsible>
             <AccordionItem value="categories">
               <AccordionTrigger className="px-4">Categories</AccordionTrigger>

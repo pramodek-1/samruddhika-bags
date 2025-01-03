@@ -22,8 +22,17 @@ export default function Home() {
       </section>
 
       <div className="container mx-auto px-4">
-        <ProductGrid title="New Arrivals" products={newArrivals} />
-        <ProductGrid title="On Sale" products={saleProducts} />
+        <ProductGrid 
+          products={newArrivals} 
+          title="New Arrivals" 
+          viewMoreLink="/category/new-arrivals"
+        />
+        
+        <ProductGrid 
+          products={saleProducts} 
+          title="On Sale" 
+          viewMoreLink="/category/on-sale"
+        />
       </div>
     </main>
   );
