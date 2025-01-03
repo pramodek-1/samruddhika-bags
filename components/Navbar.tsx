@@ -44,46 +44,54 @@ const Navbar = () => {
 
   return (
     <nav className="sticky top-0 z-50 bg-background border-b">
-      <div className="container mx-auto px-4 py-3">
+      <div className="container mx-auto px-2 sm:px-4 py-2 sm:py-3">
         <div className="flex items-center justify-between">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
-            {theme === 'dark' ? <Sun /> : <Moon />}
+            {theme === 'dark' ? (
+              <Sun className="h-4 w-4 sm:h-5 sm:w-5" />
+            ) : (
+              <Moon className="h-4 w-4 sm:h-5 sm:w-5" />
+            )}
           </Button>
 
           <div className="flex-1 text-center">
-            <Link href="/" className="flex items-center justify-center gap-2">
+            <Link href="/" className="flex items-center justify-center gap-1 sm:gap-2">
               {theme === 'dark' ? (
                 <Image 
                   src="/images/logo.png" 
-                  width={50} 
-                  height={50} 
+                  width={40} 
+                  height={40} 
                   alt="Dark Mode Logo"
                   priority
+                  className="sm:w-[50px] sm:h-[50px]"
                 />
               ) : (
                 <Image 
                   src="/images/logo_l.png" 
-                  width={50} 
-                  height={50} 
+                  width={40} 
+                  height={40} 
                   alt="Light Mode Logo"
                   priority
+                  className="sm:w-[50px] sm:h-[50px]"
                 />
               )}
-              <main className="flex flex-col items-center justify-center gap-0.1">
-                <span className="text-2xl font-bold font-titles">SAMRUDDHIKA BAGS</span>
-                <span className="text-xs text-gray-500 font-medium mt-0.1">The Best Place to Buy Bags</span>
+              <main className="flex flex-col items-center justify-center">
+                <span className="text-lg sm:text-2xl font-bold font-titles">SAMRUDDHIKA BAGS</span>
+                <span className="text-[10px] sm:text-xs text-gray-500 font-medium">The Best Place to Buy Bags</span>
               </main>
             </Link>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
             <Button
               variant="ghost"
               size="icon"
+              className="hidden sm:flex"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
               <SearchIcon />
@@ -91,10 +99,10 @@ const Navbar = () => {
 
             <Link href="/cart">
               <Button variant="ghost" size="icon" className="relative">
-              <FaShoppingCart className="h-5 w-5" />
+                <FaShoppingCart className="h-4 w-4 sm:h-5 sm:w-5" />
                 {totalItems > 0 && (
                   <Badge
-                    className="absolute -top-2 -right-2 h-5 w-5 flex items-center justify-center p-0 text-xs"
+                    className="absolute -top-2 -right-2 h-4 w-4 sm:h-5 sm:w-5 flex items-center justify-center p-0 text-[10px] sm:text-xs"
                     variant="destructive"
                   >
                     {totalItems}

@@ -54,15 +54,15 @@ export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 
   return (
     <div className="absolute inset-x-0 top-full bg-background border-b shadow-lg">
-      <div className="container mx-auto p-4">
+      <div className="container mx-auto p-2 sm:p-4">
         <div className="relative flex items-center gap-2">
           <div className="relative flex-1">
-            <SearchIcon className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <SearchIcon className="absolute left-2 sm:left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input
               ref={inputRef}
               type="text"
               placeholder="Search products..."
-              className="w-full pl-10"
+              className="w-full pl-8 sm:pl-10 text-sm sm:text-base"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               onKeyDown={handleKeyDown}
@@ -73,6 +73,7 @@ export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
             size="icon"
             onClick={handleSearch}
             disabled={searchResults.length === 0}
+            className="h-8 w-8 sm:h-10 sm:w-10"
           >
             <ArrowRight className="h-4 w-4" />
           </Button>
@@ -80,25 +81,25 @@ export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
 
         {searchResults.length > 0 && (
           <Card className="mt-2">
-            <CardContent className="p-2">
-              <div className="max-h-[60vh] overflow-y-auto">
+            <CardContent className="p-1 sm:p-2">
+              <div className="max-h-[50vh] sm:max-h-[60vh] overflow-y-auto">
                 {searchResults.map((product) => (
                   <Link
                     key={product.id}
                     href={`/products/${product.id}`}
                     onClick={onClose}
-                    className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg transition-colors"
+                    className="flex items-center gap-2 sm:gap-3 p-2 hover:bg-accent rounded-lg transition-colors"
                   >
                     <Image
                       src={product.image}
                       alt={product.name}
-                      width={48}
-                      height={48}
-                      className="object-cover rounded"
+                      width={40}
+                      height={40}
+                      className="object-cover rounded sm:w-12 sm:h-12"
                     />
                     <div className="flex-1 min-w-0">
-                      <h3 className="font-medium truncate">{product.name}</h3>
-                      <p className="text-sm text-muted-foreground truncate">
+                      <h3 className="font-medium truncate text-sm sm:text-base">{product.name}</h3>
+                      <p className="text-xs sm:text-sm text-muted-foreground truncate">
                         {product.brand} • LKR {product.price.toFixed(2)}
                       </p>
                     </div>
