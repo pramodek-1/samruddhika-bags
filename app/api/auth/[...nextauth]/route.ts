@@ -1,16 +1,35 @@
-import NextAuth from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
+import NextAuth from 'next-auth';
+import type { NextAuthOptions } from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
 
-const handler = NextAuth({
+export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID!,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-    }),
+    CredentialsProvider({
+      name: 'Credentials',
+      credentials: {
+        email: { label: "Email", type: "email" },
+        password: { label: "Password", type: "password" }
+      },
+      async authorize(credentials) {
+        // Add your authentication logic here
+        if (credentials?.email === "admin@example.com" && credentials?.password === "password") {
+          return {
+            id: "1",
+            email: credentials.email,
+            name: "Admin User",
+          };
+        }
+        return null;
+      }
+    })
   ],
   pages: {
     signIn: '/auth/signin',
   },
-});
+  session: {
+    strategy: 'jwt',
+  },
+};
 
+const handler = NextAuth(authOptions);
 export { handler as GET, handler as POST }; 

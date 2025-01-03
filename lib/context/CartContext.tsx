@@ -3,18 +3,19 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import { Product } from '@/lib/types/product';
 
-interface CartItem extends Product {
+export interface CartItem extends Product {
   quantity: number;
   selectedColor?: string;
   selectedSize?: string;
   selectedImage?: string;
 }
 
-interface CartContextType {
+export interface CartContextType {
   items: CartItem[];
   addToCart: (product: Product, quantity: number, color?: string, size?: string, image?: string) => void;
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
+  clearCart: () => void;
   totalItems: number;
   totalPrice: number;
   shippingCost: number;
@@ -71,6 +72,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     );
   }, []);
 
+  const clearCart = useCallback(() => {
+    setItems([]);
+  }, []);
+
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
   const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
@@ -88,6 +93,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         addToCart,
         removeFromCart,
         updateQuantity,
+        clearCart,
         totalItems,
         totalPrice,
         shippingCost,
