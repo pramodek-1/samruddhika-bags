@@ -68,7 +68,7 @@ const Footer = () => {
             <h3 className="text-lg font-semibold mb-4">Follow Us</h3>
             <div className="flex space-x-4">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/profile.php?id=61570478726983&mibextid=ZbWKwL"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"
@@ -76,7 +76,7 @@ const Footer = () => {
                 <Facebook className="h-6 w-6" />
               </a>
               <a
-                href="https://instagram.com"
+                href="https://www.instagram.com/invites/contact/?igsh=bk9389up9wv5&utm_content=wib86xq"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"
@@ -84,7 +84,7 @@ const Footer = () => {
                 <Instagram className="h-6 w-6" />
               </a>
               <a
-                href="https://twitter.com"
+                href="https://wa.me/94724149720"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-muted-foreground hover:text-primary"

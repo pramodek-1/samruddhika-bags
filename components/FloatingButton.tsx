@@ -12,22 +12,22 @@ const FloatingButton = () => {
   const socialLinks = [
     {
       icon: <Facebook className="h-5 w-5" />,
-      href: 'https://facebook.com',
+      href: 'https://www.facebook.com/profile.php?id=61570478726983&mibextid=ZbWKwL',
       bg: 'bg-blue-600',
     },
     {
       icon: <Instagram className="h-5 w-5" />,
-      href: 'https://instagram.com',
+      href: 'https://www.instagram.com/invites/contact/?igsh=bk9389up9wv5&utm_content=wib86xq',
       bg: 'bg-pink-600',
     },
     {
       icon: <ImWhatsapp className="h-5 w-5" />,
-      href: 'https://wa.me/1234567890',
+      href: 'https://wa.me/94724149720',
       bg: 'bg-green-600',
     },
     {
       icon: <Phone className="h-5 w-5" />,
-      href: 'tel:+1234567890',
+      href: 'tel:+94724149720',
       bg: 'bg-blue-400',
     },
   ];
