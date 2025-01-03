@@ -24,6 +24,7 @@ import {
   DropdownMenuTrigger,
 
 } from "@/components/ui/dropdown-menu";
+import Image from 'next/image';
 
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
@@ -56,9 +57,21 @@ const Navbar = () => {
           <div className="flex-1 text-center">
             <Link href="/" className="flex items-center justify-center gap-2">
               {theme === 'dark' ? (
-                <img src="/images/logo.png" width="50" height="50" alt="Dark Mode Logo" />
+                <Image 
+                  src="/images/logo.png" 
+                  width={50} 
+                  height={50} 
+                  alt="Dark Mode Logo"
+                  priority
+                />
               ) : (
-                <img src="/images/logo_l.png" width="50" height="50" alt="Light Mode Logo" />
+                <Image 
+                  src="/images/logo_l.png" 
+                  width={50} 
+                  height={50} 
+                  alt="Light Mode Logo"
+                  priority
+                />
               )}
               <main className="flex flex-col items-center justify-center gap-0.1">
                 <span className="text-2xl font-bold font-titles">SAMRUDDHIKA BAGS</span>

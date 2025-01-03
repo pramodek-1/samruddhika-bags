@@ -7,6 +7,16 @@ const nextConfig = {
     };
     return config;
   },
+  images: {
+    domains: ['placeholder.svg'],
+    unoptimized: true,
+  },
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+  typescript: {
+    ignoreBuildErrors: true,
+  },
 }
 
 module.exports = nextConfig

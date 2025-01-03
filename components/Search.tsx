@@ -9,6 +9,7 @@ import Link from 'next/link';
 import { Product } from '@/lib/types/product';
 import { products } from '@/lib/data/products';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -88,10 +89,12 @@ export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
                     onClick={onClose}
                     className="flex items-center gap-3 p-2 hover:bg-accent rounded-lg transition-colors"
                   >
-                    <img
+                    <Image
                       src={product.image}
                       alt={product.name}
-                      className="w-12 h-12 object-cover rounded"
+                      width={48}
+                      height={48}
+                      className="object-cover rounded"
                     />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium truncate">{product.name}</h3>
@@ -109,7 +112,7 @@ export function Search({ isOpen, onClose }: { isOpen: boolean; onClose: () => vo
         {searchQuery && searchResults.length === 0 && (
           <Card className="mt-2">
             <CardContent className="p-4 text-center text-muted-foreground">
-              No products found for "{searchQuery}"
+              No products found for &quot;{searchQuery}&quot;
             </CardContent>
           </Card>
         )}
