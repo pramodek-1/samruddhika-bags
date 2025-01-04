@@ -1,6 +1,17 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 
+interface OrderItem {
+  id: string;
+  name: string;
+  price: number;
+  quantity: number;
+  selectedColor?: string;
+  selectedSize?: string;
+  selectedImage?: string;
+  image?: string;
+}
+
 export async function POST(request: Request) {
   try {
     const orderData = await request.json();
@@ -21,7 +32,7 @@ export async function POST(request: Request) {
         shippingCost: orderData.shippingCost,
         grandTotal: orderData.grandTotal,
         items: {
-          create: orderData.items.map(item => ({
+          create: orderData.items.map((item: OrderItem) => ({
             productId: item.id,
             name: item.name,
             price: item.price,
