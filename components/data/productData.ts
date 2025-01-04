@@ -114,6 +114,7 @@ export const relatedProducts: Product[] = [
       size: ["One Size"],
     },
     image: "/placeholder.svg?height=400&width=400&text=FILA+Classic+Duffel",
+    category: "Backpack"
   },
   {
     id: "2",
@@ -130,6 +131,7 @@ export const relatedProducts: Product[] = [
       size: ["One Size"],
     },
     image: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
+    category: "Backpack"
   },
 ];
 
