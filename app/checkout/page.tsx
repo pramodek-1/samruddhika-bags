@@ -21,7 +21,7 @@ interface FormData {
   street: string;
   city: string;
   postcode: string;
-  notes?: string;
+  notes: string;
 }
 
 export default function CheckoutPage() {
@@ -146,7 +146,10 @@ export default function CheckoutPage() {
           <CouponInput />
           <div className="space-y-6">
             <BillingDetailsForm formData={formData} onChange={handleFormChange} />
-            <OrderNotes value={formData.notes} onChange={handleFormChange} />
+            <OrderNotes 
+              value={formData.notes || ''}
+              onChange={handleFormChange} 
+            />
           </div>
         </div>
 
