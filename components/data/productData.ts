@@ -14,7 +14,6 @@ export interface Product {
   brand: string;
   outOfStock?: string[];
   image: string;
-  category: string;
 }
 
 export const product: Product = {
@@ -64,65 +63,32 @@ export const product: Product = {
   },
   outOfStock: ["Light Blue"],
   image: "/images/products/columbiaL_all.jpg",
-  category: "Backpack",
 };
 
 export const relatedProducts: Product[] = [
   {
-    id: "3",
-    name: "XG School-Travel BackPack",
-    brand: "XG",
-    price: 3099,
+    id: "2",
+    name: "FILA Classic Duffel",
+    brand: "FILA",
+    price: 39.99,
     description: "Classic sports duffel bag with FILA branding",
-    mainImage: "/images/products/XG_main.jpg",
+    mainImage: "/placeholder.svg?height=400&width=400&text=FILA+Classic+Duffel",
     images: {
-      Red: [
-        "/images/products/columbiaL_1.jpg",
-        "/images/products/columbiaL_4.jpg",
-        "/images/products/columbiaL_7.jpg",
-        "/images/products/columbiaL_10.jpg",
-        "/images/products/columbiaL_14.jpg",
-        "/images/products/columbiaL_17.jpg",
-      ],
-      Black: [
-        "/images/products/columbiaL_3.jpg",
-        "/images/products/columbiaL_6.jpg",
-        "/images/products/columbiaL_9.jpg",
-        "/images/products/columbiaL_13.jpg",
-        "/images/products/columbiaL_16.jpg",
-        "/images/products/columbiaL_19.jpg",
-      ],
-      "Dark Blue": [
-        "/images/products/columbiaL_2.jpg",
-        "/images/products/columbiaL_5.jpg",
-        "/images/products/columbiaL_8.jpg",
-        "/images/products/columbiaL_11.jpg",
-        "/images/products/columbiaL_15.jpg",
-        "/images/products/columbiaL_18.jpg",
-      ],
-      "Light Blue": [
-        "/images/products/columbiaL_20.jpg",
-        "/images/products/columbiaL_21.jpg",
-        "/images/products/columbiaL_22.jpg",
-        "/images/products/columbiaL_23.jpg",
-        "/images/products/columbiaL_24.jpg",
-        "/images/products/columbiaL_25.jpg",
-      ],
+      Black: ["/placeholder.svg?height=200&width=200&text=FILA+Classic+Duffel"],
     },
     variations: {
-      color: ["Red", "Black", "Dark Blue", "Light Blue"],
+      color: ["Black"],
       size: ["One Size"],
     },
     image: "/placeholder.svg?height=400&width=400&text=FILA+Classic+Duffel",
-    category: "Backpack"
   },
   {
-    id: "2",
-    name: "Field School BackPack",
-    brand: "FIELD",
-    price: 1999,
+    id: "3",
+    name: "FILA Mini Backpack",
+    brand: "FILA",
+    price: 34.99,
     description: "Compact everyday backpack with FILA logo",
-    mainImage: "/images/products/field_main.jpg",
+    mainImage: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
     images: {
       Black: ["/placeholder.svg?height=200&width=200&text=FILA+Mini+Backpack"],
     },
@@ -131,7 +97,5 @@ export const relatedProducts: Product[] = [
       size: ["One Size"],
     },
     image: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
-    category: "Backpack"
   },
 ];
-

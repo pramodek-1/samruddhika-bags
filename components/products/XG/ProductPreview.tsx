@@ -1,17 +1,11 @@
 import { useState, useEffect } from 'react'
-import { Product } from '@/components/data/productData'
 import { product, relatedProducts } from '@/components/data/XG/productData'
 import { ProductImage } from '@/components/products/XG/ProductImage'
 import { ProductInfo } from '@/components/products/XG/ProductInfo'
 import { ProductDescription } from '@/components/products/XG/ProductDescription'
 import { RelatedProducts } from '@/components/products/XG/RelatedProducts'
 
-interface ProductPreviewProps {
-  product: Product;
-  // ... rest of the interface
-}
-
-export function ProductPreview({ product, ...props }: ProductPreviewProps) {
+export function ProductPreview() {
   const [selectedColor, setSelectedColor] = useState(product.variations.color[0])
   const [selectedSize, setSelectedSize] = useState(product.variations.size[0])
   const [currentMainImage, setCurrentMainImage] = useState(product.mainImage)
@@ -49,4 +43,3 @@ export function ProductPreview({ product, ...props }: ProductPreviewProps) {
     </div>
   )
 }
-

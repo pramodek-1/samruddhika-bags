@@ -14,7 +14,6 @@ export interface Product {
   brand: string;
   outOfStock?: string[];
   image: string;
-  category: string;
 }
 
 export const product: Product = {
@@ -75,7 +74,6 @@ export const product: Product = {
     size: ["One Size"],
   },
   image: "/images/products/XG_all.jpg",
-  category: "Backpack",
 };
 
 export const relatedProducts: Product[] = [
@@ -143,4 +141,3 @@ export const relatedProducts: Product[] = [
     image: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
   },
 ];
-
