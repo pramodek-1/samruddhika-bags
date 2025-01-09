@@ -10,6 +10,7 @@ import { CouponInput } from "./coupon-input";
 import { OrderNotes } from "./order-notes";
 import { useRouter } from 'next/navigation';
 import { createOrder } from '@/lib/services/orderService';
+import Image from 'next/image';
 
 interface FormData {
   firstName: string;
@@ -160,10 +161,12 @@ export default function CheckoutPage() {
               <div className="space-y-4">
                 {items.map((item) => (
                   <div key={`${item.id}-${item.selectedColor}-${item.selectedSize}`} className="flex gap-4">
-                    <img
+                    <Image
                       src={item.selectedImage || item.image}
                       alt={item.name}
-                      className="w-16 h-16 object-cover rounded"
+                      width={64}
+                      height={64}
+                      className="object-cover rounded"
                     />
                     <div className="flex-1 min-w-0">
                       <h3 className="font-medium truncate">{item.name}</h3>

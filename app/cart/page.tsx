@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { ShoppingBag, Trash2 } from 'lucide-react';
 import { useCart } from '@/lib/context/CartContext';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function CartPage() {
   const { 
@@ -45,10 +46,12 @@ export default function CartPage() {
           {items.map((item) => (
             <Card key={`${item.id}-${item.selectedColor}-${item.selectedSize}`}>
               <CardContent className="p-6 flex gap-4">
-                <img
+                <Image
                   src={item.selectedImage || item.image}
                   alt={item.name}
-                  className="w-24 h-24 object-cover rounded"
+                  width={96}
+                  height={96}
+                  className="object-cover rounded"
                 />
                 <div className="flex-1">
                   <h3 className="font-semibold">{item.name}</h3>
