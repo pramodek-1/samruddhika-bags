@@ -14,6 +14,7 @@ export interface Product {
   brand: string;
   outOfStock?: string[];
   image: string;
+  category: string;
 }
 
 export const product: Product = {
@@ -73,6 +74,7 @@ export const product: Product = {
     color: ["Red", "Black", "Dark Blue", "Light Blue"],
     size: ["One Size"],
   },
+  category: "Backpacks",
   image: "/images/products/XG_all.jpg",
 };
 
@@ -122,6 +124,7 @@ export const relatedProducts: Product[] = [
     color: ["Red", "Black", "Dark Blue", "Light Blue"],
     size: ["One Size"],
   },
+  category: "Backpacks",
   image: "/images/products/columbiaL_all.jpg",
 },
   {
@@ -138,6 +141,7 @@ export const relatedProducts: Product[] = [
       color: ["Black"],
       size: ["One Size"],
     },
+    category: "Backpacks",
     image: "/placeholder.svg?height=400&width=400&text=FILA+Mini+Backpack",
   },
 ];

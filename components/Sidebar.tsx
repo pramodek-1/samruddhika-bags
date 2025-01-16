@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { useTheme } from 'next-themes';
+import Image from 'next/image';
 
 import {
   Accordion,
@@ -30,9 +31,9 @@ const Sidebar = () => {
     <div className="h-full flex flex-col">
       <div className="flex items-center gap-2 p-4">
         {theme === 'dark' ? (
-          <img src="/images/logo.png" width="50" height="50" alt="Dark Mode Logo" />
+          <Image src="/images/logo.png" width="50" height="50" alt="Dark Mode Logo" />
         ) : (
-          <img src="/images/logo_l.png" width="50" height="50" alt="Light Mode Logo" />
+          <Image src="/images/logo_l.png" width="50" height="50" alt="Light Mode Logo" />
         )}
         <main className="flex flex-col items-center justify-center gap-0.1">
           <span className="text-sm font-bold font-titles">SAMRUDDHIKA BAGS MANUFACTURER</span>
