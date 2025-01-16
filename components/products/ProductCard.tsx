@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Product } from '@/lib/types/product';
 import Link from 'next/link';
+import Image from 'next/image';
 
 interface ProductCardProps {
   product: Product;
@@ -16,9 +17,11 @@ export function ProductCard({ product }: ProductCardProps) {
     <Card className="group overflow-hidden">
       <Link href={`/products/${product.id}`}>
         <div className="relative aspect-square">
-          <img
+        <Image
             src={product.image}
             alt={product.name}
+            width={400}
+            height={400}
             className="object-cover w-full h-full transition-transform group-hover:scale-105"
           />
           {product.isNewArrival && (
