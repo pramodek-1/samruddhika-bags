@@ -47,12 +47,18 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-semibold mb-4">Contact Info</h3>
             <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-muted-foreground">
+            <a
+                href="https://maps.app.goo.gl/hwFjiJdujVe6naHXA"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+              <li className="flex items-center gap-2 text-muted-foreground hover:text-primary">
                 <MapPin className="h-4 w-4" />
                 <p>
                   no.290 2<sup>nd</sup> Step, Thambuttegama
                 </p>
               </li>
+              </a>
               <li className="flex items-center gap-2 text-muted-foreground">
                 <Phone className="h-4 w-4" />
                 +94 72 414 9720

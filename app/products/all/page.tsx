@@ -22,7 +22,7 @@ export default function AllProducts() {
       <div className="mb-6 sm:mb-8">
         <h1 className="text-2xl sm:text-3xl font-bold">All Products</h1>
         <p className="text-sm sm:text-base text-muted-foreground mt-2">
-          Browse our complete collection of bag
+          Browse our complete collection of bags
         </p>
       </div>
 

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 export default function Home() {
   const newArrivals = products.filter((product) => product.isNewArrival);
   const saleProducts = products.filter((product) => product.isOnSale);
+  const recommendProducts = products.filter((product) => product.isOnRecommend);
 
   return (
     <main>
@@ -22,16 +23,22 @@ export default function Home() {
       </section>
 
       <div className="container mx-auto px-4">
-        <ProductGrid 
-          products={newArrivals} 
-          title="New Arrivals" 
+        <ProductGrid
+          products={newArrivals}
+          title="New Arrivals"
           viewMoreLink="/category/new-arrivals"
         />
-        
-        <ProductGrid 
-          products={saleProducts} 
-          title="On Sale" 
+
+        <ProductGrid
+          products={saleProducts}
+          title="On Sale"
           viewMoreLink="/category/on-sale"
+        />
+
+        <ProductGrid
+          products={recommendProducts}
+          title="For You"
+          viewMoreLink="/category/recommended"
         />
       </div>
     </main>

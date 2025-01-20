@@ -36,7 +36,7 @@ export const products: Product[] = [
     price: 1650,
     category: 'class-bags',
     image: '/images/products/weizhina_main.jpg',
-    isNewArrival: true
+    isOnRecommend: true
   },
   {
     id: '5',
@@ -51,10 +51,38 @@ export const products: Product[] = [
   {
     id: '6',
     name: "Travelling 'M' Bag",
-    description: 'Perfect bag for carrying books and supplies',
+    description: 'Perfect bag for carrying Gods and supplies',
     price: 1350,
     category: 'travelling-bags',
     image: '/images/products/travellingM_main.jpg',
-    isNewArrival: true
+    isOnRecommend: true
+  },
+  {
+    id: '7',
+    name: "Kitty Bag",
+    description: 'Perfect class bag for Girls',
+    price: 1650,
+    category: 'class-bags',
+    image: '/images/products/kitty_main.jpg',
+    isOnRecommend: true
+  },
+  {
+    id: '8',
+    name: "Dell School BackPack",
+    description: 'School bag-Class bag-Laptop bag for Girls & Boys',
+    price: 2000,
+    category: 'school-bags',
+    image: '/images/products/dell_main.jpg',
+    isOnSale: true,
+    salePrice: 1899
+  },
+  {
+    id: '9',
+    name: "Fila Side Bag",
+    description: 'Suitable for both boys & gils as class bag/sidebag',
+    price: 2000,
+    category: 'class-bags',
+    image: '/images/products/fila_side_main.jpg',
+    isOnRecommend: true
   }
 ];

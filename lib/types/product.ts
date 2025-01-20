@@ -8,5 +8,6 @@ export interface Product {
   image: string;
   isNewArrival?: boolean;
   isOnSale?: boolean;
+  isOnRecommend?: boolean;
   salePrice?: number;
 }
