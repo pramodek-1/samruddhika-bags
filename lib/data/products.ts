@@ -84,5 +84,23 @@ export const products: Product[] = [
     category: 'class-bags',
     image: '/images/products/fila_side_main.jpg',
     isOnRecommend: true
+  },
+  {
+    id: '10',
+    name: "Columbia Loop 'L' Bag",
+    description: 'Durable and spacious backpack perfect for both girls & boys',
+    price: 1550,
+    category: 'school-bags',
+    image: '/images/products/loopL_main.jpg',
+    isNewArrival: true
+  },
+  {
+    id: '11',
+    name: "Nursery (Montessori) Bag",
+    description: 'Montessori bag for little ones',
+    price: 1550,
+    category: 'pre-school-bags',
+    image: '/images/products/montessori_main.jpg',
+    isNewArrival: true
   }
 ];
