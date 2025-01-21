@@ -16,6 +16,8 @@ interface OrderItem {
   name: string;
   quantity: number;
   price: number;
+  selectedColor?: string;  // Optional color property
+  selectedSize?: string;   // Optional size property
 }
 
 export async function POST(request: Request) {
@@ -107,7 +109,7 @@ export async function POST(request: Request) {
     console.log('Message sent: %s', info.messageId);
     
     return NextResponse.json({ success: true, messageId: info.messageId });
-  } catch (error) {
+  } catch (error: any) {
     console.error('Email sending error:', error);
     return NextResponse.json(
       { error: 'Failed to send email', details: error.message },
