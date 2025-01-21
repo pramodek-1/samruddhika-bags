@@ -11,6 +11,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+// Add an interface for the order item
+interface OrderItem {
+  name: string;
+  quantity: number;
+  price: number;
+}
+
 export async function POST(request: Request) {
   try {
     const { email, orderId, customerName, items, totalPrice, shippingCost, grandTotal } = await request.json();
@@ -18,7 +25,7 @@ export async function POST(request: Request) {
     // Verify transporter
     await transporter.verify();
 
-    const orderItemsHtml = items.map(item => `
+    const orderItemsHtml = items.map((item: OrderItem) => `
       <tr>
         <td style="padding: 8px; border-bottom: 1px solid #e2e8f0;">
           ${item.name}
