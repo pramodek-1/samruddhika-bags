@@ -107,6 +107,28 @@ export default function CheckoutPage() {
         throw new Error('Failed to create order');
       }
 
+      // Send confirmation email
+      try {
+        await fetch('/api/send-email', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            orderId: order.id,
+            customerName: `${formData.firstName} ${formData.lastName}`,
+            items,
+            totalPrice,
+            shippingCost,
+            grandTotal
+          }),
+        });
+      } catch (emailError) {
+        console.error('Failed to send confirmation email:', emailError);
+        // Don't throw error here - we still want to complete the order
+      }
+
       // Only clear cart and show success if order was created
       clearCart();
       toast.success('Order placed successfully!');
