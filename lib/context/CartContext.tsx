@@ -1,7 +1,8 @@
 'use client';
 
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { Product } from '@/lib/types/product';
+import { useSession } from 'next-auth/react';
 
 export interface CartItem extends Product {
   quantity: number;
@@ -25,7 +26,55 @@ export interface CartContextType {
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const { data: session } = useSession();
+  const [cartItems, setCartItems] = useState<CartItem[]>(() => {
+    if (typeof window !== 'undefined') {
+      const savedCart = localStorage.getItem('cartItems');
+      return savedCart ? JSON.parse(savedCart) : [];
+    }
+    return [];
+  });
+
+  // Sync with server when user signs in/out
+  useEffect(() => {
+    const syncCart = async () => {
+      if (session?.user) {
+        try {
+          // If user just signed in, first try to load their server-stored cart
+          const response = await fetch('/api/cart');
+          const serverCart = await response.json();
+          
+          if (serverCart.items?.length) {
+            setCartItems(serverCart.items);
+          } else {
+            // If no server cart, push local cart to server
+            await fetch('/api/cart', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ items: cartItems }),
+            });
+          }
+        } catch (error) {
+          console.error('Error syncing cart:', error);
+        }
+      }
+    };
+
+    syncCart();
+  }, [session]);
+
+  // Save to localStorage and server (if signed in)
+  useEffect(() => {
+    localStorage.setItem('cartItems', JSON.stringify(cartItems));
+
+    if (session?.user) {
+      fetch('/api/cart', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: cartItems }),
+      }).catch(error => console.error('Error saving cart:', error));
+    }
+  }, [cartItems, session]);
 
   const addToCart = useCallback((
     product: Product,
@@ -34,7 +83,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     size?: string,
     image?: string
   ) => {
-    setItems(currentItems => {
+    setCartItems(currentItems => {
       const existingItem = currentItems.find(
         item => 
           item.id === product.id && 
@@ -61,11 +110,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const removeFromCart = useCallback((productId: string) => {
-    setItems(currentItems => currentItems.filter(item => item.id !== productId));
+    setCartItems(currentItems => currentItems.filter(item => item.id !== productId));
   }, []);
 
   const updateQuantity = useCallback((productId: string, quantity: number) => {
-    setItems(currentItems =>
+    setCartItems(currentItems =>
       currentItems.map(item =>
         item.id === productId ? { ...item, quantity } : item
       )
@@ -73,11 +122,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const clearCart = useCallback(() => {
-    setItems([]);
+    setCartItems([]);
   }, []);
 
-  const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
-  const totalPrice = items.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+  const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   
   // Calculate shipping cost: 350 for first item, +50 for each additional item
   const shippingCost = totalItems > 0 
@@ -89,7 +138,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   return (
     <CartContext.Provider
       value={{
-        items,
+        items: cartItems,
         addToCart,
         removeFromCart,
         updateQuantity,

@@ -47,4 +47,10 @@ model OrderItem {
   color       String?
   size        String?
   image       String?
+}
+
+model Cart {
+  userId    String   @id
+  items     Json
+  updatedAt DateTime @updatedAt
 } 
