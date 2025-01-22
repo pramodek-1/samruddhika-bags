@@ -50,7 +50,7 @@ model OrderItem {
 }
 
 model Cart {
-  userId    String   @id
+  userId    String   @id @map("_id")
   items     Json
   updatedAt DateTime @updatedAt
 } 
