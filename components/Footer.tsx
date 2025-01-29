@@ -4,8 +4,12 @@ import React from 'react';
 import Link from 'next/link';
 import { Facebook, Instagram, Mail, Phone, MapPin } from 'lucide-react';
 import { ImWhatsapp } from "react-icons/im";
+import { RiAdminLine } from "react-icons/ri";
+import { useAdmin } from '@/lib/context/AdminContext';
 
 const Footer = () => {
+  const { isAdmin } = useAdmin();
+
   return (
     <footer className="bg-background border-t">
       <div className="container mx-auto px-4 py-8">
@@ -102,7 +106,18 @@ const Footer = () => {
         </div>
         
         <div className="border-t mt-8 pt-8 text-center text-muted-foreground">
-          <p>&copy; 2025 Pramod Vishmitha. All rights reserved.</p>
+          <p className="flex items-center justify-center gap-2">
+            &copy; 2025 Pramod Vishmitha. All rights reserved.
+            {isAdmin && (
+              <Link 
+                href="/admin/orders"
+                className="inline-flex items-center gap-1 hover:text-primary"
+              >
+                <RiAdminLine className="h-4 w-4" />
+                
+              </Link>
+            )}
+          </p>
         </div>
       </div>
     </footer>

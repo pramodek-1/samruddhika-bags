@@ -23,7 +23,8 @@ export interface Order {
   city: string;
   state: string;
   postcode: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'completed';
+  completedAt?: string;
   trackingNumber?: string;
   notes?: string;
 } 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Order } from '@/app/types/order';
+import { CheckCircle2 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -38,11 +39,29 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
+      // Don't allow updates if order is completed
+      const currentOrder = orders.find(o => o.id === orderId);
+      if (currentOrder?.status === 'completed') {
+        toast.error('Cannot update a completed order');
+        return;
+      }
+
+      // Add confirmation for completed status
+      if (status === 'completed') {
+        const confirmed = window.confirm(
+          'Are you sure you want to mark this order as completed? This action cannot be undone.'
+        );
+        if (!confirmed) {
+          return;
+        }
+      }
+
       const updatedOrders = orders.map(order => {
         if (order.id === orderId) {
           return {
             ...order,
             status,
+            completedAt: status === 'completed' ? new Date().toISOString() : order.completedAt,
           };
         }
         return order;
@@ -56,7 +75,11 @@ export default function AdminOrdersPage() {
         await sendStatusUpdateEmail(orderId, status, order.trackingNumber, order);
       }
       
-      toast.success('Order status updated successfully');
+      if (status === 'completed') {
+        toast.success('Order marked as completed successfully');
+      } else {
+        toast.success('Order status updated successfully');
+      }
     } catch (error) {
       toast.error('Failed to update order status');
     }
@@ -64,6 +87,13 @@ export default function AdminOrdersPage() {
 
   const updateTrackingNumber = async (orderId: string) => {
     try {
+      // Don't allow updates if order is completed
+      const currentOrder = orders.find(o => o.id === orderId);
+      if (currentOrder?.status === 'completed') {
+        toast.error('Cannot update a completed order');
+        return;
+      }
+
       const trackingNumber = trackingNumbers[orderId];
       const updatedOrders = orders.map(order => {
         if (order.id === orderId) {
@@ -123,13 +153,23 @@ export default function AdminOrdersPage() {
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div>
-                  <p className="font-medium">Order #{order.id}</p>
+                  <div className="flex items-center gap-2">
+                    <p className="font-medium">Order #{order.id}</p>
+                    {order.status === 'completed' && (
+                      <CheckCircle2 className="h-5 w-5 text-green-500" />
+                    )}
+                  </div>
                   <p className="text-sm text-muted-foreground">
                     Customer: {order.firstName} {order.lastName}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Email: {order.email}
                   </p>
+                  {order.completedAt && (
+                    <p className="text-sm text-green-600">
+                      Completed on: {new Date(order.completedAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -138,6 +178,7 @@ export default function AdminOrdersPage() {
                       onValueChange={(value) => 
                         updateOrderStatus(order.id, value as Order['status'])
                       }
+                      disabled={order.status === 'completed'}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select status" />
@@ -147,6 +188,7 @@ export default function AdminOrdersPage() {
                         <SelectItem value="processing">Processing</SelectItem>
                         <SelectItem value="shipped">Shipped</SelectItem>
                         <SelectItem value="delivered">Delivered</SelectItem>
+                        <SelectItem value="completed">Completed</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -160,11 +202,13 @@ export default function AdminOrdersPage() {
                           [order.id]: e.target.value
                         }))
                       }
+                      disabled={order.status === 'completed'}
                       className="w-[180px]"
                     />
                     <Button 
                       variant="outline"
                       onClick={() => updateTrackingNumber(order.id)}
+                      disabled={order.status === 'completed'}
                     >
                       Update
                     </Button>
