@@ -38,14 +38,7 @@ export default function RootLayout({
               {children}
               <Footer />
               <FloatingButton />
-              <Toaster
-                position="bottom-center"
-                expand={true}
-                closeButton
-                style={{
-                  marginTop: '4rem'
-                }}
-              />
+              <Toaster />
             </CartProvider>
           </ThemeProvider>
         </AuthProvider>

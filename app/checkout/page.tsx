@@ -107,6 +107,15 @@ export default function CheckoutPage() {
         throw new Error('Failed to create order');
       }
 
+      // Store order in localStorage
+      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
+      const orderToStore = {
+        ...orderData,
+        id: order.id,
+        date: new Date().toISOString(),
+      };
+      localStorage.setItem('orders', JSON.stringify([...existingOrders, orderToStore]));
+
       // Send confirmation email
       try {
         await fetch('/api/send-email', {
