@@ -6,8 +6,9 @@ import Image from 'next/image';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
-import { PackageSearch, Trash2 } from 'lucide-react';
+import { PackageSearch, Trash2, TruckIcon } from 'lucide-react';
 import { toast } from 'sonner';
+import { Badge } from "@/components/ui/badge";
 
 interface OrderItem {
   id: string;
@@ -32,6 +33,23 @@ interface Order {
   city: string;
   state: string;
   postcode: string;
+  status: 'pending' | 'processing' | 'shipped' | 'delivered';
+  trackingNumber?: string;
+}
+
+function getStatusColor(status: Order['status']) {
+  switch (status) {
+    case 'pending':
+      return 'bg-yellow-100 text-yellow-800';
+    case 'processing':
+      return 'bg-blue-100 text-blue-800';
+    case 'shipped':
+      return 'bg-purple-100 text-purple-800';
+    case 'delivered':
+      return 'bg-green-100 text-green-800';
+    default:
+      return 'bg-gray-100 text-gray-800';
+  }
 }
 
 function formatPrice(value: number | undefined): string {
@@ -80,6 +98,11 @@ export default function OrdersPage() {
     }
   };
 
+  const getTrackingLink = (trackingNumber: string) => {
+    // You can customize this based on your shipping provider
+    return `https://track.samruddhibags.com/tracking/${trackingNumber}`;
+  };
+
   if (orders.length === 0) {
     return (
       <div className="container mx-auto px-4 py-8 min-h-[60vh] flex flex-col items-center justify-center">
@@ -103,7 +126,12 @@ export default function OrdersPage() {
               <div className="flex flex-col sm:flex-row justify-between mb-4">
                 <div>
                   {order.id && (
-                    <p className="font-medium">Order #{order.id}</p>
+                    <div className="flex items-center gap-3 mb-1">
+                      <p className="font-medium">Order #{order.id}</p>
+                      <Badge variant="secondary" className={getStatusColor(order.status)}>
+                        {order.status.charAt(0).toUpperCase() + order.status.slice(1)}
+                      </Badge>
+                    </div>
                   )}
                   {order.date && (
                     <p className="text-sm text-muted-foreground">
@@ -118,15 +146,28 @@ export default function OrdersPage() {
                       LKR {formatPrice(order.grandTotal)}
                     </p>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                    onClick={() => handleDeleteOrder(order.id)}
-                    title="Delete order"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    {order.trackingNumber && (
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        className="text-purple-500 hover:text-purple-700 hover:bg-purple-50"
+                        onClick={() => window.open(getTrackingLink(order.trackingNumber!), '_blank')}
+                        title="Track order"
+                      >
+                        <TruckIcon className="h-4 w-4" />
+                      </Button>
+                    )}
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                      onClick={() => handleDeleteOrder(order.id)}
+                      title="Delete order"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </div>
 

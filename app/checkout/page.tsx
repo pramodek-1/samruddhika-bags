@@ -98,7 +98,9 @@ export default function CheckoutPage() {
         items,
         totalPrice,
         shippingCost,
-        grandTotal
+        grandTotal,
+        status: 'pending' as const,
+        date: new Date().toISOString(),
       };
 
       const order = await createOrder(orderData);

@@ -9,6 +9,7 @@ import Footer from '@/components/Footer';
 import { Toaster } from 'sonner';
 import FloatingButton from '@/components/FloatingButton';
 import { AuthProvider } from '@/components/providers/AuthProvider';
+import { AdminProvider } from '@/lib/context/AdminContext';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -26,21 +27,23 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className={inter.className}>
         <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <CartProvider>
-              <Header />
-              <Navbar />
-              {children}
-              <Footer />
-              <FloatingButton />
-              <Toaster />
-            </CartProvider>
-          </ThemeProvider>
+          <AdminProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <CartProvider>
+                <Header />
+                <Navbar />
+                {children}
+                <Footer />
+                <FloatingButton />
+                <Toaster />
+              </CartProvider>
+            </ThemeProvider>
+          </AdminProvider>
         </AuthProvider>
       </body>
     </html>
