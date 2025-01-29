@@ -12,7 +12,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Order } from '@/types/order';
+import { Order } from '@/app/types/order';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
