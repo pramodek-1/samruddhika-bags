@@ -91,10 +91,10 @@ const Navbar = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="hidden sm:flex"
+              className="flex"
               onClick={() => setIsSearchOpen(!isSearchOpen)}
             >
-              <SearchIcon />
+              <SearchIcon className="h-4 w-4 sm:h-5 sm:w-5" />
             </Button>
 
             <Link href="/cart">
@@ -114,11 +114,18 @@ const Navbar = () => {
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    <RiAccountCircleFill className="h-6 w-6" />
+                  <Button variant="ghost" size="icon" className="flex">
+                    <RiAccountCircleFill className="h-5 w-5 sm:h-6 sm:w-6" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="w-48">
+                  {session.user?.isAdmin && (
+                    <DropdownMenuItem asChild>
+                      <Link href="/admin/orders" className="w-full">
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem onClick={() => signOut()}>
                     Sign Out
                   </DropdownMenuItem>
@@ -129,9 +136,10 @@ const Navbar = () => {
                 variant="ghost"
                 size="icon"
                 asChild
+                className="flex"
               >
                 <Link href="/auth/signin">
-                  <RiAccountCircleFill className="h-6 w-6" />
+                  <RiAccountCircleFill className="h-5 w-5 sm:h-6 sm:w-6" />
                 </Link>
               </Button>
             )}
