@@ -14,6 +14,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Order, OrderStatus } from '@/app/types/order';
 import { CheckCircle2, Trash2 } from 'lucide-react';
+import Image from 'next/image';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -328,13 +329,45 @@ export default function AdminOrdersPage() {
 
               <div className="mt-4">
                 <h3 className="font-medium mb-2">Order Items</h3>
-                <div className="space-y-2">
+                <div className="space-y-4">
                   {order.items.map((item) => (
-                    <div key={`${order.id}-${item.id}`} className="text-sm">
-                      {item.name} × {item.quantity}
+                    <div key={`${order.id}-${item.id}`} className="flex gap-4">
+                      <Image
+                        src={item.selectedImage || item.image}
+                        alt={item.name}
+                        width={80}
+                        height={80}
+                        className="w-20 h-20 rounded object-cover"
+                      />
+                      <div>
+                        <p className="text-sm font-medium">{item.name}</p>
+                        <p className="text-sm text-muted-foreground">
+                          Qty: {item.quantity} × LKR {item.price.toFixed(2)}
+                        </p>
+                        {item.selectedColor && (
+                          <div className="flex items-center gap-2 mt-1">
+                            <div 
+                              className="w-3 h-3 rounded-full border"
+                              style={{ backgroundColor: item.selectedColor }}
+                            />
+                            <span className="text-xs text-muted-foreground">
+                              {item.selectedColor}
+                            </span>
+                          </div>
+                        )}
+                        {item.selectedSize && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Size: {item.selectedSize}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   ))}
                 </div>
+              </div>
+
+              <div className="mt-4 text-sm text-muted-foreground">
+                <p>Total: LKR {order.grandTotal.toFixed(2)}</p>
               </div>
             </CardContent>
           </Card>
