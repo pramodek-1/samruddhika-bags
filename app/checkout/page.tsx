@@ -94,6 +94,7 @@ export default function CheckoutPage() {
 
     try {
       const orderData = {
+        id: crypto.randomUUID(), // Add a unique ID for the order
         ...formData,
         items,
         totalPrice,
@@ -103,20 +104,20 @@ export default function CheckoutPage() {
         date: new Date().toISOString(),
       };
 
-      const order = await createOrder(orderData);
+      // Send order to API
+      const response = await fetch('/api/orders', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
 
-      if (!order) {
+      if (!response.ok) {
         throw new Error('Failed to create order');
       }
 
-      // Store order in localStorage
-      const existingOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-      const orderToStore = {
-        ...orderData,
-        id: order.id,
-        date: new Date().toISOString(),
-      };
-      localStorage.setItem('orders', JSON.stringify([...existingOrders, orderToStore]));
+      const order = await response.json();
 
       // Send confirmation email
       try {

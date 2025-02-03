@@ -20,30 +20,40 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [trackingNumbers, setTrackingNumbers] = useState<{ [key: string]: string }>({});
   const [recentlyCancelled, setRecentlyCancelled] = useState<{ [key: string]: NodeJS.Timeout }>({});
+  const [recentlyCompleted, setRecentlyCompleted] = useState<{ [key: string]: NodeJS.Timeout }>({});
 
   useEffect(() => {
     loadOrders();
     
     return () => {
       // Cleanup timeouts when component unmounts
-      Object.values(recentlyCancelled).forEach(timeout => {
-        clearTimeout(timeout);
-      });
+      Object.values(recentlyCancelled).forEach(timeout => clearTimeout(timeout));
+      Object.values(recentlyCompleted).forEach(timeout => clearTimeout(timeout));
     };
   }, []);
 
-  const loadOrders = () => {
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    setOrders(storedOrders.sort((a: Order, b: Order) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    ));
-    
-    // Initialize tracking numbers state
-    const trackingState: { [key: string]: string } = {};
-    storedOrders.forEach((order: Order) => {
-      trackingState[order.id] = order.trackingNumber || '';
-    });
-    setTrackingNumbers(trackingState);
+  const loadOrders = async () => {
+    try {
+      const response = await fetch('/api/orders');
+      if (!response.ok) throw new Error('Failed to fetch orders');
+      const data = await response.json();
+      
+      const sortedOrders = data.orders.sort((a: Order, b: Order) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      setOrders(sortedOrders);
+      
+      // Initialize tracking numbers state
+      const trackingState: { [key: string]: string } = {};
+      sortedOrders.forEach((order: Order) => {
+        trackingState[order.id] = order.trackingNumber || '';
+      });
+      setTrackingNumbers(trackingState);
+    } catch (error) {
+      toast.error('Failed to load orders');
+      console.error('Error loading orders:', error);
+    }
   };
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
@@ -58,35 +68,54 @@ export default function AdminOrdersPage() {
       // Add confirmation for completed and cancelled status
       if (status === 'completed' || status === 'cancelled') {
         const confirmed = window.confirm(
-          `Are you sure you want to mark this order as ${status}? This action cannot be undone.`
+          `Are you sure you want to mark this order as ${status}? This action can be undone within 5 minutes.`
         );
         if (!confirmed) {
           return;
         }
       }
 
-      const updatedOrders = orders.map(order => {
-        if (order.id === orderId) {
-          return {
-            ...order,
-            status,
-            completedAt: status === 'completed' ? new Date().toISOString() : order.completedAt,
-            cancelledAt: status === 'cancelled' ? new Date().toISOString() : order.cancelledAt,
-          };
-        }
-        return order;
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ status }),
       });
 
-      localStorage.setItem('orders', JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      if (!response.ok) throw new Error('Failed to update order');
+
+      const updatedOrder = await response.json();
       
-      const order = updatedOrders.find(o => o.id === orderId);
-      if (order) {
-        await sendStatusUpdateEmail(orderId, status, order.trackingNumber, order);
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? updatedOrder : order
+        )
+      );
+
+      if (updatedOrder) {
+        await sendStatusUpdateEmail(orderId, status, updatedOrder.trackingNumber, updatedOrder);
       }
       
       if (status === 'completed') {
-        toast.success('Order marked as completed successfully');
+        toast.success('Order marked as completed successfully', {
+          action: {
+            label: "Undo",
+            onClick: () => handleUndoComplete(orderId)
+          },
+        });
+
+        // Set a timeout to remove the undo option after 5 minutes
+        const timeout = setTimeout(() => {
+          const newRecentlyCompleted = { ...recentlyCompleted };
+          delete newRecentlyCompleted[orderId];
+          setRecentlyCompleted(newRecentlyCompleted);
+        }, 5 * 60 * 1000); // 5 minutes
+
+        setRecentlyCompleted(prev => ({
+          ...prev,
+          [orderId]: timeout
+        }));
       } else if (status === 'cancelled') {
         toast.success('Order cancelled successfully', {
           action: {
@@ -111,6 +140,7 @@ export default function AdminOrdersPage() {
       }
     } catch (error) {
       toast.error('Failed to update order status');
+      console.error('Error updating order:', error);
     }
   };
 
@@ -124,29 +154,77 @@ export default function AdminOrdersPage() {
         setRecentlyCancelled(newRecentlyCancelled);
       }
 
-      // Restore the order to its previous state
-      const updatedOrders = orders.map(order => {
-        if (order.id === orderId) {
-          return {
-            ...order,
-            status: 'pending' as OrderStatus,
-            cancelledAt: undefined,
-          };
-        }
-        return order;
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'pending',
+          cancelledAt: null  // Explicitly set cancelledAt to null
+        }),
       });
 
-      localStorage.setItem('orders', JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      if (!response.ok) throw new Error('Failed to undo cancellation');
+
+      const updatedOrder = await response.json();
       
-      const order = updatedOrders.find(o => o.id === orderId);
-      if (order) {
-        await sendStatusUpdateEmail(orderId, 'pending', order.trackingNumber, order);
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? updatedOrder : order
+        )
+      );
+      
+      if (updatedOrder) {
+        await sendStatusUpdateEmail(orderId, 'pending', updatedOrder.trackingNumber, updatedOrder);
       }
       
       toast.success('Order cancellation undone');
     } catch (error) {
       toast.error('Failed to undo cancellation');
+      console.error('Error undoing cancellation:', error);
+    }
+  };
+
+  const handleUndoComplete = async (orderId: string) => {
+    try {
+      // Clear the timeout
+      if (recentlyCompleted[orderId]) {
+        clearTimeout(recentlyCompleted[orderId]);
+        const newRecentlyCompleted = { ...recentlyCompleted };
+        delete newRecentlyCompleted[orderId];
+        setRecentlyCompleted(newRecentlyCompleted);
+      }
+
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ 
+          status: 'processing',
+          completedAt: null
+        }),
+      });
+
+      if (!response.ok) throw new Error('Failed to undo completion');
+
+      const updatedOrder = await response.json();
+      
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? updatedOrder : order
+        )
+      );
+      
+      if (updatedOrder) {
+        await sendStatusUpdateEmail(orderId, 'processing', updatedOrder.trackingNumber, updatedOrder);
+      }
+      
+      toast.success('Order completion undone');
+    } catch (error) {
+      toast.error('Failed to undo completion');
+      console.error('Error undoing completion:', error);
     }
   };
 
@@ -160,27 +238,32 @@ export default function AdminOrdersPage() {
       }
 
       const trackingNumber = trackingNumbers[orderId];
-      const updatedOrders = orders.map(order => {
-        if (order.id === orderId) {
-          return {
-            ...order,
-            trackingNumber,
-          };
-        }
-        return order;
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ trackingNumber }),
       });
 
-      localStorage.setItem('orders', JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      if (!response.ok) throw new Error('Failed to update tracking number');
+
+      const updatedOrder = await response.json();
       
-      const order = updatedOrders.find(o => o.id === orderId);
-      if (order) {
-        await sendStatusUpdateEmail(orderId, order.status, trackingNumber, order);
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId ? updatedOrder : order
+        )
+      );
+
+      if (updatedOrder) {
+        await sendStatusUpdateEmail(orderId, updatedOrder.status, trackingNumber, updatedOrder);
       }
       
       toast.success('Tracking number updated successfully');
     } catch (error) {
       toast.error('Failed to update tracking number');
+      console.error('Error updating tracking number:', error);
     }
   };
 
@@ -209,8 +292,7 @@ export default function AdminOrdersPage() {
     }
   };
 
-  const deleteOrder = (orderId: string) => {
-    // Ask for confirmation before deleting
+  const deleteOrder = async (orderId: string) => {
     const confirmed = window.confirm(
       'Are you sure you want to delete this order? This action cannot be undone.'
     );
@@ -220,12 +302,20 @@ export default function AdminOrdersPage() {
     }
 
     try {
-      const updatedOrders = orders.filter(order => order.id !== orderId);
-      localStorage.setItem('orders', JSON.stringify(updatedOrders));
-      setOrders(updatedOrders);
+      const response = await fetch(`/api/orders/${orderId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) throw new Error('Failed to delete order');
+
+      setOrders(prevOrders => 
+        prevOrders.filter(order => order.id !== orderId)
+      );
+      
       toast.success('Order deleted successfully');
     } catch (error) {
       toast.error('Failed to delete order');
+      console.error('Error deleting order:', error);
     }
   };
 
