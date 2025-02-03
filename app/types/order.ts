@@ -9,6 +9,8 @@ export interface OrderItem {
   selectedSize?: string;
 }
 
+export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | 'completed' | 'cancelled';
+
 export interface Order {
   id: string;
   date: string;
@@ -23,8 +25,9 @@ export interface Order {
   city: string;
   state: string;
   postcode: string;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'completed';
+  status: OrderStatus;
   completedAt?: string;
   trackingNumber?: string;
   notes?: string;
+  cancelledAt?: string;
 } 

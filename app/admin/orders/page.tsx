@@ -12,15 +12,23 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
-import { Order } from '@/app/types/order';
+import { Order, OrderStatus } from '@/app/types/order';
 import { CheckCircle2, Trash2 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [trackingNumbers, setTrackingNumbers] = useState<{ [key: string]: string }>({});
+  const [recentlyCancelled, setRecentlyCancelled] = useState<{ [key: string]: NodeJS.Timeout }>({});
 
   useEffect(() => {
     loadOrders();
+    
+    return () => {
+      // Cleanup timeouts when component unmounts
+      Object.values(recentlyCancelled).forEach(timeout => {
+        clearTimeout(timeout);
+      });
+    };
   }, []);
 
   const loadOrders = () => {
@@ -39,17 +47,17 @@ export default function AdminOrdersPage() {
 
   const updateOrderStatus = async (orderId: string, status: Order['status']) => {
     try {
-      // Don't allow updates if order is completed
+      // Don't allow updates if order is completed or cancelled
       const currentOrder = orders.find(o => o.id === orderId);
-      if (currentOrder?.status === 'completed') {
-        toast.error('Cannot update a completed order');
+      if (currentOrder?.status === 'completed' || currentOrder?.status === 'cancelled') {
+        toast.error(`Cannot update a ${currentOrder.status} order`);
         return;
       }
 
-      // Add confirmation for completed status
-      if (status === 'completed') {
+      // Add confirmation for completed and cancelled status
+      if (status === 'completed' || status === 'cancelled') {
         const confirmed = window.confirm(
-          'Are you sure you want to mark this order as completed? This action cannot be undone.'
+          `Are you sure you want to mark this order as ${status}? This action cannot be undone.`
         );
         if (!confirmed) {
           return;
@@ -62,6 +70,7 @@ export default function AdminOrdersPage() {
             ...order,
             status,
             completedAt: status === 'completed' ? new Date().toISOString() : order.completedAt,
+            cancelledAt: status === 'cancelled' ? new Date().toISOString() : order.cancelledAt,
           };
         }
         return order;
@@ -77,6 +86,25 @@ export default function AdminOrdersPage() {
       
       if (status === 'completed') {
         toast.success('Order marked as completed successfully');
+      } else if (status === 'cancelled') {
+        toast.success('Order cancelled successfully', {
+          action: {
+            label: "Undo",
+            onClick: () => handleUndoCancel(orderId)
+          },
+        });
+
+        // Set a timeout to remove the undo option after 5 minutes
+        const timeout = setTimeout(() => {
+          const newRecentlyCancelled = { ...recentlyCancelled };
+          delete newRecentlyCancelled[orderId];
+          setRecentlyCancelled(newRecentlyCancelled);
+        }, 5 * 60 * 1000); // 5 minutes
+
+        setRecentlyCancelled(prev => ({
+          ...prev,
+          [orderId]: timeout
+        }));
       } else {
         toast.success('Order status updated successfully');
       }
@@ -85,12 +113,48 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const handleUndoCancel = async (orderId: string) => {
+    try {
+      // Clear the timeout
+      if (recentlyCancelled[orderId]) {
+        clearTimeout(recentlyCancelled[orderId]);
+        const newRecentlyCancelled = { ...recentlyCancelled };
+        delete newRecentlyCancelled[orderId];
+        setRecentlyCancelled(newRecentlyCancelled);
+      }
+
+      // Restore the order to its previous state
+      const updatedOrders = orders.map(order => {
+        if (order.id === orderId) {
+          return {
+            ...order,
+            status: 'pending' as OrderStatus,
+            cancelledAt: undefined,
+          };
+        }
+        return order;
+      });
+
+      localStorage.setItem('orders', JSON.stringify(updatedOrders));
+      setOrders(updatedOrders);
+      
+      const order = updatedOrders.find(o => o.id === orderId);
+      if (order) {
+        await sendStatusUpdateEmail(orderId, 'pending', order.trackingNumber, order);
+      }
+      
+      toast.success('Order cancellation undone');
+    } catch (error) {
+      toast.error('Failed to undo cancellation');
+    }
+  };
+
   const updateTrackingNumber = async (orderId: string) => {
     try {
-      // Don't allow updates if order is completed
+      // Don't allow updates if order is completed or cancelled
       const currentOrder = orders.find(o => o.id === orderId);
-      if (currentOrder?.status === 'completed') {
-        toast.error('Cannot update a completed order');
+      if (currentOrder?.status === 'completed' || currentOrder?.status === 'cancelled') {
+        toast.error(`Cannot update a ${currentOrder.status} order`);
         return;
       }
 
@@ -186,6 +250,9 @@ export default function AdminOrdersPage() {
                     {order.status === 'completed' && (
                       <CheckCircle2 className="h-5 w-5 text-green-500" />
                     )}
+                    {order.status === 'cancelled' && (
+                      <span className="text-sm text-red-500 font-medium">Cancelled</span>
+                    )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
                     Ordered on: {new Date(order.date).toLocaleDateString()} at {new Date(order.date).toLocaleTimeString()}
@@ -201,6 +268,11 @@ export default function AdminOrdersPage() {
                       Completed on: {new Date(order.completedAt).toLocaleDateString()}
                     </p>
                   )}
+                  {order.cancelledAt && (
+                    <p className="text-sm text-red-600">
+                      Cancelled on: {new Date(order.cancelledAt).toLocaleDateString()}
+                    </p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <div className="flex gap-2">
@@ -209,7 +281,7 @@ export default function AdminOrdersPage() {
                       onValueChange={(value) => 
                         updateOrderStatus(order.id, value as Order['status'])
                       }
-                      disabled={order.status === 'completed'}
+                      disabled={order.status === 'completed' || order.status === 'cancelled'}
                     >
                       <SelectTrigger className="w-[180px]">
                         <SelectValue placeholder="Select status" />
@@ -220,6 +292,7 @@ export default function AdminOrdersPage() {
                         <SelectItem value="shipped">Shipped</SelectItem>
                         <SelectItem value="delivered">Delivered</SelectItem>
                         <SelectItem value="completed">Completed</SelectItem>
+                        <SelectItem value="cancelled">Cancelled</SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
@@ -233,13 +306,13 @@ export default function AdminOrdersPage() {
                           [order.id]: e.target.value
                         }))
                       }
-                      disabled={order.status === 'completed'}
+                      disabled={order.status === 'completed' || order.status === 'cancelled'}
                       className="w-[180px]"
                     />
                     <Button 
                       variant="outline"
                       onClick={() => updateTrackingNumber(order.id)}
-                      disabled={order.status === 'completed'}
+                      disabled={order.status === 'completed' || order.status === 'cancelled'}
                     >
                       Update
                     </Button>
