@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Order } from '@/app/types/order';
-import { CheckCircle2 } from 'lucide-react';
+import { CheckCircle2, Trash2 } from 'lucide-react';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -144,12 +144,40 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const deleteOrder = (orderId: string) => {
+    // Ask for confirmation before deleting
+    const confirmed = window.confirm(
+      'Are you sure you want to delete this order? This action cannot be undone.'
+    );
+    
+    if (!confirmed) {
+      return;
+    }
+
+    try {
+      const updatedOrders = orders.filter(order => order.id !== orderId);
+      localStorage.setItem('orders', JSON.stringify(updatedOrders));
+      setOrders(updatedOrders);
+      toast.success('Order deleted successfully');
+    } catch (error) {
+      toast.error('Failed to delete order');
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Manage Orders</h1>
       <div className="space-y-6">
         {orders.map((order) => (
-          <Card key={order.id} className="overflow-hidden">
+          <Card key={order.id} className="overflow-hidden relative">
+            <Button 
+              variant="ghost"
+              size="icon"
+              onClick={() => deleteOrder(order.id)}
+              className="absolute top-2 right-2 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div>
@@ -159,6 +187,9 @@ export default function AdminOrdersPage() {
                       <CheckCircle2 className="h-5 w-5 text-green-500" />
                     )}
                   </div>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Ordered on: {new Date(order.date).toLocaleDateString()} at {new Date(order.date).toLocaleTimeString()}
+                  </p>
                   <p className="text-sm text-muted-foreground">
                     Customer: {order.firstName} {order.lastName}
                   </p>
