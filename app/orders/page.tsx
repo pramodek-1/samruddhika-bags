@@ -58,42 +58,57 @@ function formatPrice(value: number | undefined): string {
 
 export default function OrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     loadOrders();
   }, []);
 
-  const loadOrders = () => {
-    const storedOrders = JSON.parse(localStorage.getItem('orders') || '[]');
-    // Filter out invalid orders
-    const validOrders = storedOrders.filter((order: Order) => {
-      return (
-        order.id &&
-        order.date &&
-        order.items?.length > 0 &&
-        order.firstName &&
-        order.lastName &&
-        order.street &&
-        order.city &&
-        order.state &&
-        order.grandTotal > 0
+  const loadOrders = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch('/api/orders');
+      if (!response.ok) {
+        throw new Error('Failed to fetch orders');
+      }
+      const data = await response.json();
+      
+      // Get hidden orders from localStorage
+      const hiddenOrders = JSON.parse(localStorage.getItem('hiddenOrders') || '[]');
+      
+      // Filter out hidden orders from the display
+      const visibleOrders = data.orders.filter((order: Order) => 
+        !hiddenOrders.includes(order.id)
       );
-    });
-    
-    setOrders(validOrders.sort((a: Order, b: Order) => 
-      new Date(b.date).getTime() - new Date(a.date).getTime()
-    ));
+      
+      // Sort orders by date, most recent first
+      const sortedOrders = visibleOrders.sort((a: Order, b: Order) => 
+        new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
+      
+      setOrders(sortedOrders);
+    } catch (error) {
+      console.error('Error loading orders:', error);
+      toast.error('Failed to load orders');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  const handleDeleteOrder = (orderId: string) => {
+  const handleDeleteOrder = async (orderId: string) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       try {
-        const updatedOrders = orders.filter(order => order.id !== orderId);
-        localStorage.setItem('orders', JSON.stringify(updatedOrders));
-        setOrders(updatedOrders);
-        toast.success('Order deleted successfully');
+        // Instead of deleting from the API, just hide it for the user
+        const hiddenOrders = JSON.parse(localStorage.getItem('hiddenOrders') || '[]');
+        hiddenOrders.push(orderId);
+        localStorage.setItem('hiddenOrders', JSON.stringify(hiddenOrders));
+        
+        // Update the UI by filtering out the hidden order
+        setOrders(orders.filter(order => order.id !== orderId));
+        toast.success('Order removed from your history');
       } catch (error) {
-        toast.error('Failed to delete order');
+        console.error('Error hiding order:', error);
+        toast.error('Failed to remove order');
       }
     }
   };
@@ -102,6 +117,17 @@ export default function OrdersPage() {
     // You can customize this based on your shipping provider
     return `https://track.samruddhibags.com/tracking/${trackingNumber}`;
   };
+
+  if (isLoading) {
+    return (
+      <div className="container mx-auto px-4 py-8 min-h-[60vh] flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading orders...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (orders.length === 0) {
     return (
