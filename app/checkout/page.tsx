@@ -11,6 +11,7 @@ import { OrderNotes } from "./order-notes";
 import { useRouter } from 'next/navigation';
 import { createOrder } from '@/lib/services/orderService';
 import Image from 'next/image';
+import { Copy } from 'lucide-react';
 
 interface FormData {
   firstName: string;
@@ -23,6 +24,8 @@ interface FormData {
   city: string;
   postcode: string;
   notes: string;
+  paymentMethod: 'cash_on_delivery' | 'bank_transfer';
+  paymentSlip?: File | null;
 }
 
 export default function CheckoutPage() {
@@ -40,14 +43,27 @@ export default function CheckoutPage() {
     city: '',
     postcode: '',
     notes: '',
+    paymentMethod: 'cash_on_delivery',
+    paymentSlip: null,
   });
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [id]: value
-    }));
+  const handleFormChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+  ) => {
+    const { id, value, type } = e.target;
+    
+    if (type === 'file' && (e.target as HTMLInputElement).files) {
+      const file = (e.target as HTMLInputElement).files![0];
+      setFormData(prev => ({
+        ...prev,
+        paymentSlip: file
+      }));
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        [id]: value
+      }));
+    }
   };
 
   const validateForm = () => {
@@ -59,17 +75,31 @@ export default function CheckoutPage() {
       'state',
       'district',
       'street',
-      'city'
+      'city',
+      'paymentMethod'
     ];
     
     // Log the form data to debug
     console.log('Form Data:', formData);
     
     for (const field of requiredFields) {
-      if (!formData[field as keyof FormData]?.trim()) {
-        toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
-        return false;
+      if (field === 'paymentMethod') {
+        if (!formData[field]) {
+          toast.error('Please select a payment method');
+          return false;
+        }
+      } else {
+        const value = formData[field as keyof FormData];
+        if (typeof value !== 'string' || !value.trim()) {
+          toast.error(`Please fill in ${field.replace(/([A-Z])/g, ' $1').toLowerCase()}`);
+          return false;
+        }
       }
+    }
+
+    if (formData.paymentMethod === 'bank_transfer' && !formData.paymentSlip) {
+      toast.error('Please upload your payment slip');
+      return false;
     }
 
     if (!formData.email.includes('@')) {
@@ -93,15 +123,51 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
+      // If there's a payment slip, upload it first
+      let paymentSlipUrl = '';
+      if (formData.paymentMethod === 'bank_transfer' && formData.paymentSlip) {
+        const formDataFile = new FormData();
+        formDataFile.append('file', formData.paymentSlip);
+        
+        const uploadResponse = await fetch('/api/upload', {
+          method: 'POST',
+          body: formDataFile,
+        });
+        
+        if (!uploadResponse.ok) {
+          throw new Error('Failed to upload payment slip');
+        }
+        
+        const uploadData = await uploadResponse.json();
+        paymentSlipUrl = uploadData.url;
+      }
+
       const orderData = {
-        id: crypto.randomUUID(), // Add a unique ID for the order
-        ...formData,
-        items,
-        totalPrice,
-        shippingCost,
-        grandTotal,
-        status: 'pending' as const,
-        date: new Date().toISOString(),
+        firstName: formData.firstName.trim(),
+        lastName: formData.lastName.trim(),
+        email: formData.email.trim(),
+        phone: formData.phone.trim(),
+        state: formData.state.trim(),
+        district: formData.district.trim(),
+        street: formData.street.trim(),
+        city: formData.city.trim(),
+        postcode: formData.postcode?.trim(),
+        notes: formData.notes?.trim(),
+        paymentMethod: formData.paymentMethod,
+        paymentSlipUrl,
+        items: items.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: Number(item.price),
+          quantity: Number(item.quantity),
+          selectedColor: item.selectedColor,
+          selectedSize: item.selectedSize,
+          selectedImage: item.selectedImage,
+          image: item.image,
+        })),
+        totalPrice: Number(totalPrice),
+        shippingCost: Number(shippingCost),
+        grandTotal: Number(grandTotal),
       };
 
       // Send order to API
@@ -113,11 +179,11 @@ export default function CheckoutPage() {
         body: JSON.stringify(orderData),
       });
 
-      if (!response.ok) {
-        throw new Error('Failed to create order');
-      }
+      const responseData = await response.json();
 
-      const order = await response.json();
+      if (!response.ok) {
+        throw new Error(responseData.error || 'Failed to create order');
+      }
 
       // Send confirmation email
       try {
@@ -128,7 +194,7 @@ export default function CheckoutPage() {
           },
           body: JSON.stringify({
             email: formData.email,
-            orderId: order.id,
+            orderId: responseData.id,
             customerName: `${formData.firstName} ${formData.lastName}`,
             items,
             totalPrice,
@@ -147,7 +213,7 @@ export default function CheckoutPage() {
       
       // Wait for toast to show before redirecting
       await new Promise(resolve => setTimeout(resolve, 1000));
-      router.push(`/order-success?orderId=${order.id}`);
+      router.push(`/order-success?orderId=${responseData.id}`);
 
     } catch (error) {
       console.error('Order submission error:', error);
@@ -181,6 +247,136 @@ export default function CheckoutPage() {
           <CouponInput />
           <div className="space-y-6">
             <BillingDetailsForm formData={formData} onChange={handleFormChange} />
+            
+            {/* Payment Method Selection */}
+            <div className="space-y-4">
+              <h2 className="text-xl font-semibold">Payment Method</h2>
+              <div className="grid gap-4">
+                <div className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                  <input
+                    type="radio"
+                    id="paymentMethod"
+                    name="paymentMethod"
+                    value="cash_on_delivery"
+                    checked={formData.paymentMethod === 'cash_on_delivery'}
+                    onChange={handleFormChange}
+                    className="h-4 w-4"
+                  />
+                  <div>
+                    <label htmlFor="cash_on_delivery" className="font-medium cursor-pointer">
+                      Cash on Delivery
+                    </label>
+                    <p className="text-sm text-muted-foreground">
+                      Pay with cash upon delivery
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="space-y-4">
+                  <div className="flex items-center space-x-3 p-4 border rounded-lg cursor-pointer hover:border-primary transition-colors">
+                    <input
+                      type="radio"
+                      id="paymentMethod"
+                      name="paymentMethod"
+                      value="bank_transfer"
+                      checked={formData.paymentMethod === 'bank_transfer'}
+                      onChange={handleFormChange}
+                      className="h-4 w-4"
+                    />
+                    <div>
+                      <label htmlFor="bank_transfer" className="font-medium cursor-pointer">
+                        Bank Transfer
+                      </label>
+                      <p className="text-sm text-muted-foreground">
+                        Pay via bank transfer
+                      </p>
+                    </div>
+                  </div>
+
+                  {formData.paymentMethod === 'bank_transfer' && (
+                    <div className="ml-7 space-y-4">
+                      <div className="bg-red-50 p-4 rounded-lg border border-red-200">
+                        <p className="text-sm font-medium text-red-600">
+                          Important: Please add your name "{formData.firstName} {formData.lastName}" as the payment reference/remarks when making the bank transfer.
+                        </p>
+                      </div>
+
+                      <div className="space-y-4">
+                        <div className="bg-muted p-4 rounded-lg space-y-2">
+                          <h3 className="font-medium">Bank Details</h3>
+                          <div className="text-sm space-y-1">
+                            <p><span className="font-medium">Bank:</span> People's Bank</p>
+                            <p><span className="font-medium">Account Name:</span> C Kaluarachchi</p>
+                            <p className="flex items-center justify-between">
+                              <span>
+                                <span className="font-medium">Account Number:</span> 219200177431962
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('219200177431962');
+                                  toast.success('Account number copied!');
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded-md transition-colors"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </button>
+                            </p>
+                            <p><span className="font-medium">Branch:</span> Thambuttegama</p>
+                          </div>
+                        </div>
+
+                        <div className="bg-muted p-4 rounded-lg space-y-2">
+                          <h3 className="font-medium">Bank Details</h3>
+                          <div className="text-sm space-y-1">
+                            <p><span className="font-medium">Bank:</span> HNB Bank</p>
+                            <p><span className="font-medium">Account Name:</span> Ekanayaka E M P V K</p>
+                            <p className="flex items-center justify-between">
+                              <span>
+                                <span className="font-medium">Account Number:</span> 088020354967
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  navigator.clipboard.writeText('088020354967');
+                                  toast.success('Account number copied!');
+                                }}
+                                className="p-1 hover:bg-gray-200 rounded-md transition-colors"
+                              >
+                                <Copy className="h-4 w-4" />
+                              </button>
+                            </p>
+                            <p><span className="font-medium">Branch:</span> Thambuttegama</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label htmlFor="paymentSlip" className="block text-sm font-medium">
+                          Upload Payment Slip
+                        </label>
+                        <input
+                          type="file"
+                          id="paymentSlip"
+                          accept="image/*,.pdf"
+                          onChange={handleFormChange}
+                          className="block w-full text-sm text-gray-500
+                            file:mr-4 file:py-2 file:px-4
+                            file:rounded-md file:border-0
+                            file:text-sm file:font-semibold
+                            file:bg-primary file:text-primary-foreground
+                            hover:file:bg-primary/90"
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Accepted formats: JPG, PNG, PDF (Max size: 5MB)
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            
             <OrderNotes 
               value={formData.notes || ''}
               onChange={handleFormChange} 

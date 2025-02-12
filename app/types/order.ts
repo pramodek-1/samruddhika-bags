@@ -14,20 +14,24 @@ export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | '
 export interface Order {
   id: string;
   date: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  state: string;
+  district: string;
+  street: string;
+  city: string;
+  postcode?: string;
+  notes?: string;
   items: OrderItem[];
   totalPrice: number;
   shippingCost: number;
   grandTotal: number;
-  firstName: string;
-  lastName: string;
-  email: string;
-  street: string;
-  city: string;
-  state: string;
-  postcode: string;
   status: OrderStatus;
-  completedAt?: string;
   trackingNumber?: string;
-  notes?: string;
+  completedAt?: string;
   cancelledAt?: string;
+  paymentMethod: 'cash_on_delivery' | 'bank_transfer';
+  paymentSlipUrl?: string;
 } 

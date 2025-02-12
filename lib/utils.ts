@@ -12,3 +12,9 @@ export function formatDate(dateString: string) {
     day: 'numeric',
   });
 }
+
+export function isValidObjectId(id: string): boolean {
+  // MongoDB ObjectId format: 24 hexadecimal characters
+  const objectIdPattern = /^[0-9a-fA-F]{24}$/;
+  return objectIdPattern.test(id);
+}

@@ -417,6 +417,36 @@ export default function AdminOrdersPage() {
                 <p>{order.city}, {order.state} {order.postcode}</p>
               </div>
 
+              {order.paymentMethod === 'bank_transfer' && (
+                <div className="mt-4">
+                  <h3 className="font-medium mb-2">Payment Details</h3>
+                  <div className="space-y-2">
+                    <p className="text-sm text-muted-foreground">Payment Method: Bank Transfer</p>
+                    {order.paymentSlipUrl ? (
+                      <div>
+                        <p className="text-sm font-medium mb-2">Payment Slip:</p>
+                        <a 
+                          href={order.paymentSlipUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="inline-block"
+                        >
+                          <Image
+                            src={order.paymentSlipUrl}
+                            alt="Payment Slip"
+                            width={200}
+                            height={200}
+                            className="rounded-lg border hover:opacity-90 transition-opacity"
+                          />
+                        </a>
+                      </div>
+                    ) : (
+                      <p className="text-sm text-red-500">No payment slip uploaded</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
               <div className="mt-4">
                 <h3 className="font-medium mb-2">Order Items</h3>
                 <div className="space-y-4">

@@ -33,6 +33,13 @@ model Order {
   shippingCost Float
   grandTotal  Float
   status      String    @default("pending") // pending, processing, completed, cancelled
+  trackingNumber String?
+  completedAt DateTime?
+  cancelledAt DateTime?
+  
+  // Payment Details
+  paymentMethod String  @default("cash_on_delivery") // cash_on_delivery, bank_transfer
+  paymentSlipUrl String?
 }
 
 model OrderItem {
