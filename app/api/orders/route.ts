@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 
 export async function GET() {
   try {
@@ -11,7 +12,7 @@ export async function GET() {
         createdAt: 'desc'
       }
     });
-    return NextResponse.json(orders);
+    return NextResponse.json({ orders });
   } catch (error) {
     console.error('Error fetching orders:', error);
     return NextResponse.json(
@@ -69,37 +70,38 @@ export async function POST(request: Request) {
       }
     }
     
-    // Create the order with its items
+    const orderInput = {
+      firstName: orderData.firstName,
+      lastName: orderData.lastName,
+      email: orderData.email,
+      phone: orderData.phone,
+      state: orderData.state,
+      district: orderData.district,
+      street: orderData.street,
+      city: orderData.city,
+      postcode: orderData.postcode || '',
+      notes: orderData.notes || '',
+      totalPrice: Number(orderData.totalPrice),
+      shippingCost: Number(orderData.shippingCost),
+      grandTotal: Number(orderData.grandTotal),
+      status: 'pending',
+      paymentMethod: orderData.paymentMethod || 'cash_on_delivery',
+      paymentSlipUrl: orderData.paymentSlipUrl || null,
+      items: {
+        create: orderData.items.map((item: any) => ({
+          productId: item.id,
+          name: item.name,
+          price: Number(item.price),
+          quantity: Number(item.quantity),
+          color: item.selectedColor || null,
+          size: item.selectedSize || null,
+          image: item.selectedImage || item.image || null,
+        }))
+      }
+    } as const;
+
     const order = await prisma.order.create({
-      data: {
-        firstName: orderData.firstName,
-        lastName: orderData.lastName,
-        email: orderData.email,
-        phone: orderData.phone,
-        state: orderData.state,
-        district: orderData.district,
-        street: orderData.street,
-        city: orderData.city,
-        postcode: orderData.postcode || '',
-        notes: orderData.notes || '',
-        totalPrice: Number(orderData.totalPrice),
-        shippingCost: Number(orderData.shippingCost),
-        grandTotal: Number(orderData.grandTotal),
-        status: 'pending',
-        paymentMethod: orderData.paymentMethod || 'cash_on_delivery',
-        paymentSlipUrl: orderData.paymentSlipUrl || null,
-        items: {
-          create: orderData.items.map((item: any) => ({
-            productId: item.id,
-            name: item.name,
-            price: Number(item.price),
-            quantity: Number(item.quantity),
-            color: item.selectedColor || null,
-            size: item.selectedSize || null,
-            image: item.selectedImage || item.image || null,
-          }))
-        }
-      },
+      data: orderInput,
       include: {
         items: true
       }
