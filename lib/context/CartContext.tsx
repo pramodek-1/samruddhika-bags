@@ -61,7 +61,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     };
 
     syncCart();
-  }, [session]);
+  }, [session, cartItems]);
 
   // Save to localStorage and server (if signed in)
   useEffect(() => {

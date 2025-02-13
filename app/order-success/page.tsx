@@ -82,7 +82,7 @@ export default function OrderSuccessPage() {
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Order Not Found</h1>
           <p className="text-muted-foreground mb-6">
-            The order you're looking for could not be found. Please check the order ID and try again.
+            The order you&apos;re looking for could not be found. Please check the order ID and try again.
           </p>
           <Button asChild>
             <Link href="/">Return to Home</Link>
