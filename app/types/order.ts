@@ -13,6 +13,7 @@ export type OrderStatus = 'pending' | 'processing' | 'shipped' | 'delivered' | '
 
 export interface Order {
   id: string;
+  createdAt: string;
   date: string;
   firstName: string;
   lastName: string;

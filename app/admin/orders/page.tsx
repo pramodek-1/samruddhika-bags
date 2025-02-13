@@ -13,8 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Order, OrderStatus } from '@/app/types/order';
-import { CheckCircle2, Trash2 } from 'lucide-react';
+import { CheckCircle2, Trash2, Download } from 'lucide-react';
 import Image from 'next/image';
+import html2canvas from 'html2canvas';
+import jsPDF from 'jspdf';
 
 export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -39,7 +41,7 @@ export default function AdminOrdersPage() {
       const data = await response.json();
       
       const sortedOrders = data.orders.sort((a: Order, b: Order) => 
-        new Date(b.date).getTime() - new Date(a.date).getTime()
+        new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
       );
       
       setOrders(sortedOrders);
@@ -319,20 +321,332 @@ export default function AdminOrdersPage() {
     }
   };
 
+  const generateInvoicePDF = async (order: Order) => {
+    try {
+      const toastId = toast.loading('Generating invoice...');
+
+      // Create a temporary div to render the invoice
+      const tempDiv = document.createElement('div');
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      tempDiv.style.width = '794px'; // A4 width in pixels
+      tempDiv.style.backgroundColor = 'white';
+      document.body.appendChild(tempDiv);
+
+      // Render the invoice component
+      const { render } = await import('react-dom');
+      const { Invoice } = await import('@/components/Invoice');
+      const { default: html2canvas } = await import('html2canvas');
+      const { default: jsPDF } = await import('jspdf');
+      
+      render(
+        <Invoice
+          orderId={order.id}
+          date={order.createdAt}
+          customerDetails={{
+            firstName: order.firstName,
+            lastName: order.lastName,
+            email: order.email,
+            phone: order.phone,
+            street: order.street,
+            city: order.city,
+            state: order.state,
+            district: order.district,
+            postcode: order.postcode || '',
+          }}
+          items={order.items}
+          totalPrice={order.totalPrice}
+          shippingCost={order.shippingCost}
+          grandTotal={order.grandTotal}
+          paymentMethod={order.paymentMethod || 'cash_on_delivery'}
+          paymentSlipUrl={order.paymentSlipUrl || undefined}
+        />,
+        tempDiv
+      );
+
+      // Wait for component to render and images to load
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      toast.loading('Processing images...', { id: toastId });
+
+      // Get the invoice content div
+      const invoiceContent = tempDiv.querySelector('#invoice-content') as HTMLElement;
+      if (!invoiceContent) {
+        throw new Error('Invoice content not found');
+      }
+
+      // Calculate scaling factors based on number of items
+      const itemCount = order.items.length;
+      const getScaledSize = (baseSize: number) => {
+        // More gradual scaling based on item count
+        const scaleFactor = itemCount <= 2 ? 1 :
+                          itemCount <= 4 ? 0.95 :
+                          itemCount <= 6 ? 0.9 :
+                          itemCount <= 8 ? 0.85 :
+                          0.8;
+        return Math.round(baseSize * scaleFactor);
+      };
+
+      // Calculate base dimensions and spacing
+      const baseMargin = getScaledSize(24);
+      const basePadding = itemCount <= 2 ? 40 :
+                         itemCount <= 4 ? 35 :
+                         itemCount <= 6 ? 30 :
+                         itemCount <= 8 ? 25 :
+                         20;
+
+      // Apply responsive styles
+      invoiceContent.style.width = '794px'; // A4 width in pixels
+      invoiceContent.style.margin = '0 auto';
+      invoiceContent.style.backgroundColor = 'white';
+      invoiceContent.style.padding = `${basePadding}px`;
+
+      // Add temporary styles for better scaling
+      const styles = document.createElement('style');
+      styles.textContent = `
+        #invoice-content {
+          font-size: ${getScaledSize(12)}px !important;
+          line-height: 1.5 !important;
+        }
+        #invoice-content h1 { 
+          font-size: ${getScaledSize(32)}px !important; 
+          margin-bottom: ${baseMargin / 2}px !important;
+          line-height: 1.2 !important;
+        }
+        #invoice-content h2 { 
+          font-size: ${getScaledSize(22)}px !important; 
+          margin-bottom: ${baseMargin / 2}px !important;
+          line-height: 1.3 !important;
+        }
+        #invoice-content .text-4xl {
+          font-size: ${getScaledSize(32)}px !important;
+        }
+        #invoice-content .text-2xl {
+          font-size: ${getScaledSize(22)}px !important;
+        }
+        #invoice-content .text-xl {
+          font-size: ${getScaledSize(20)}px !important;
+        }
+        #invoice-content .text-lg {
+          font-size: ${getScaledSize(18)}px !important;
+        }
+        #invoice-content .text-base {
+          font-size: ${getScaledSize(14)}px !important;
+        }
+        #invoice-content .text-sm {
+          font-size: ${getScaledSize(12)}px !important;
+        }
+        #invoice-content .text-xs {
+          font-size: ${getScaledSize(11)}px !important;
+        }
+        #invoice-content .billing-address {
+          font-weight: 500 !important;
+        }
+        #invoice-content .billing-address .customer-name {
+          font-size: ${getScaledSize(18)}px !important;
+          font-weight: 600 !important;
+          color: #1a1a1a !important;
+        }
+        #invoice-content .billing-address p {
+          margin-bottom: ${getScaledSize(4)}px !important;
+          color: #374151 !important;
+        }
+        #invoice-content table {
+          font-size: ${getScaledSize(12)}px !important;
+        }
+        #invoice-content table th {
+          font-size: ${getScaledSize(13)}px !important;
+          font-weight: 600 !important;
+        }
+        #invoice-content .item-name {
+          font-size: ${getScaledSize(13)}px !important;
+          font-weight: 500 !important;
+        }
+        #invoice-content .totals-section {
+          font-size: ${getScaledSize(14)}px !important;
+        }
+        #invoice-content .grand-total {
+          font-size: ${getScaledSize(18)}px !important;
+          font-weight: 600 !important;
+        }
+        #invoice-content .mb-12 {
+          margin-bottom: ${baseMargin * 1.5}px !important;
+        }
+        #invoice-content .mb-8 {
+          margin-bottom: ${baseMargin}px !important;
+        }
+        #invoice-content .mb-6 {
+          margin-bottom: ${baseMargin * 0.75}px !important;
+        }
+        #invoice-content .mb-4 {
+          margin-bottom: ${baseMargin * 0.5}px !important;
+        }
+        #invoice-content .mb-2 {
+          margin-bottom: ${baseMargin * 0.25}px !important;
+        }
+        #invoice-content .p-8 {
+          padding: ${baseMargin}px !important;
+        }
+        #invoice-content .p-4 {
+          padding: ${baseMargin * 0.5}px !important;
+        }
+        #invoice-content .gap-12 {
+          gap: ${baseMargin * 1.5}px !important;
+        }
+        #invoice-content .gap-4 {
+          gap: ${baseMargin * 0.5}px !important;
+        }
+        #invoice-content .gap-2 {
+          gap: ${baseMargin * 0.25}px !important;
+        }
+      `;
+      document.head.appendChild(styles);
+
+      // Create canvas with proper dimensions
+      const canvas = await html2canvas(invoiceContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        windowWidth: 794, // A4 width in pixels
+        height: invoiceContent.scrollHeight,
+        imageTimeout: 15000,
+        onclone: (clonedDoc) => {
+          const clonedElement = clonedDoc.getElementById('invoice-content');
+          if (clonedElement) {
+            clonedElement.style.margin = '0';
+            clonedElement.style.padding = `${basePadding}px`;
+            clonedElement.style.width = '794px';
+            clonedElement.style.minHeight = '1123px';
+            clonedElement.style.height = 'auto';
+            clonedElement.style.overflow = 'visible';
+          }
+
+          // Ensure all images are loaded in the cloned document
+          const images = clonedDoc.getElementsByTagName('img');
+          Array.from(images).forEach(img => {
+            if (img.dataset.originalSrc) {
+              img.src = img.dataset.originalSrc;
+            }
+            img.style.opacity = '1';
+            img.style.visibility = 'visible';
+            img.style.maxWidth = 'none';
+            img.style.maxHeight = 'none';
+            img.style.position = 'relative';
+
+            // Apply different sizes based on image type and number of items
+            if (img.alt === 'Samruddhika Bags') {
+              // Scale logo based on number of items
+              const maxLogoWidth = 200;
+              const logoScale = Math.max(0.6, 1 - (itemCount * 0.05));
+              const logoWidth = Math.round(maxLogoWidth * logoScale);
+              img.style.width = `${logoWidth}px`;
+              img.style.height = 'auto';
+            } else {
+              // Scale product images based on number of items
+              const maxImageSize = 64;
+              const imageScale = Math.max(0.65, 1 - (itemCount * 0.05));
+              const imageSize = Math.round(maxImageSize * imageScale);
+              img.style.width = `${imageSize}px`;
+              img.style.height = `${imageSize}px`;
+              img.style.objectFit = 'cover';
+            }
+          });
+        }
+      });
+
+      toast.loading('Creating PDF...', { id: toastId });
+
+      // Create PDF with better quality settings
+      const pdf = new jsPDF({
+        format: 'a4',
+        unit: 'mm',
+        orientation: 'portrait',
+        compress: true,
+        precision: 16
+      });
+
+      // Calculate dimensions to fit A4 perfectly
+      const imgWidth = 210; // A4 width in mm
+      const imgHeight = Math.min((canvas.height * imgWidth) / canvas.width, 297); // A4 height in mm
+      const verticalOffset = Math.max(0, (297 - imgHeight) / 2); // Center vertically if smaller than A4
+
+      // Calculate scale to fit content
+      const scale = Math.min(
+        210 / (canvas.width / 96 * 25.4),  // Width scale (96 DPI to mm)
+        297 / (canvas.height / 96 * 25.4)   // Height scale (96 DPI to mm)
+      );
+
+      // Calculate the scaled height in mm
+      const scaledHeight = (canvas.height * scale * 25.4) / 96;
+      
+      // Calculate number of pages needed
+      const pageHeight = 297; // A4 height in mm
+      const totalPages = Math.ceil(scaledHeight / pageHeight);
+
+      // Add content to pages
+      for (let i = 0; i < totalPages; i++) {
+        if (i > 0) {
+          pdf.addPage();
+        }
+
+        // Calculate the position and height for this page's content
+        const yOffset = -i * pageHeight; // Offset for current page
+        const remainingHeight = scaledHeight - (i * pageHeight); // Height left to display
+        const currentPageHeight = Math.min(remainingHeight, pageHeight); // Height for this page
+
+        pdf.addImage(
+          canvas.toDataURL('image/jpeg', 1.0),
+          'JPEG',
+          0,
+          yOffset,
+          210, // A4 width in mm
+          scaledHeight,
+          undefined,
+          'FAST'
+        );
+      }
+
+      // Download the PDF
+      pdf.save(`invoice-${order.id}.pdf`);
+
+      // Cleanup
+      document.body.removeChild(tempDiv);
+      document.head.removeChild(styles);
+      
+      toast.success('Invoice downloaded successfully!', { id: toastId });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      toast.error('Failed to generate PDF. Please try again.');
+    }
+  };
+
   return (
     <div className="container mx-auto px-4 py-8">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">Manage Orders</h1>
       <div className="space-y-6">
         {orders.map((order) => (
           <Card key={order.id} className="overflow-hidden relative">
-            <Button 
-              variant="ghost"
-              size="icon"
-              onClick={() => deleteOrder(order.id)}
-              className="absolute top-2 right-2 h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-            >
-              <Trash2 className="h-4 w-4" />
-            </Button>
+            <div className="absolute top-2 right-2 flex gap-2">
+              <Button 
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-primary/10"
+                onClick={() => generateInvoicePDF(order)}
+              >
+                <Download className="h-4 w-4" />
+              </Button>
+
+              <Button 
+                variant="ghost"
+                size="icon"
+                onClick={() => deleteOrder(order.id)}
+                className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
             <CardContent className="p-6">
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div>
@@ -346,7 +660,14 @@ export default function AdminOrdersPage() {
                     )}
                   </div>
                   <p className="text-sm text-muted-foreground mt-1">
-                    Ordered on: {new Date(order.date).toLocaleDateString()} at {new Date(order.date).toLocaleTimeString()}
+                    Ordered on: {new Date(order.createdAt).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'long',
+                      day: 'numeric'
+                    })} at {new Date(order.createdAt).toLocaleTimeString('en-US', {
+                      hour: '2-digit',
+                      minute: '2-digit'
+                    })}
                   </p>
                   <p className="text-sm text-muted-foreground">
                     Customer: {order.firstName} {order.lastName}
