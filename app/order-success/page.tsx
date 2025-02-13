@@ -105,7 +105,7 @@ export default function OrderSuccessPage() {
           </h1>
           
           <p className="text-muted-foreground">
-            Your order has been successfully placed. We'll send you an email with your order details and tracking information once your order ships.
+            Your order has been successfully placed. We&apos;ll send you an email with your order details and tracking information once your order ships.
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center">

@@ -74,7 +74,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
         body: JSON.stringify({ items: cartItems }),
       }).catch(error => console.error('Error saving cart:', error));
     }
-  }, [cartItems, session]);
+  }, [cartItems, session?.user]);
 
   const addToCart = useCallback((
     product: Product,

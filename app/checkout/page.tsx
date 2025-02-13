@@ -297,7 +297,7 @@ export default function CheckoutPage() {
                     <div className="ml-7 space-y-4">
                       <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                         <p className="text-sm font-medium text-red-600">
-                          Important: Please add your name "{formData.firstName} {formData.lastName}" as the payment reference/remarks when making the bank transfer.
+                          Important: Please add your name &ldquo;{formData.firstName} {formData.lastName}&rdquo; as the payment reference/remarks when making the bank transfer.
                         </p>
                       </div>
 
@@ -305,7 +305,7 @@ export default function CheckoutPage() {
                         <div className="bg-muted p-4 rounded-lg space-y-2">
                           <h3 className="font-medium">Bank Details</h3>
                           <div className="text-sm space-y-1">
-                            <p><span className="font-medium">Bank:</span> People's Bank</p>
+                            <p><span className="font-medium">Bank:</span> People&apos;s Bank</p>
                             <p><span className="font-medium">Account Name:</span> C Kaluarachchi</p>
                             <p className="flex items-center justify-between">
                               <span>

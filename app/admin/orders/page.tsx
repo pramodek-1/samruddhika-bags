@@ -32,7 +32,7 @@ export default function AdminOrdersPage() {
       Object.values(recentlyCancelled).forEach(timeout => clearTimeout(timeout));
       Object.values(recentlyCompleted).forEach(timeout => clearTimeout(timeout));
     };
-  }, []);
+  }, [recentlyCancelled, recentlyCompleted]);
 
   const loadOrders = async () => {
     try {
