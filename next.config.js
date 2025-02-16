@@ -9,16 +9,6 @@ const nextConfig = {
   },
   experimental: {
     serverActions: true,
-  },
-  images: {
-    domains: ['www.samruddhikabags.lk'],
-    remotePatterns: [
-      {
-        protocol: 'https',
-        hostname: 'www.samruddhikabags.lk',
-        pathname: '/uploads/**',
-      },
-    ],
   }
 }
 
