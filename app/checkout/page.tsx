@@ -338,7 +338,7 @@ export default function CheckoutPage() {
                         <label className="block text-sm font-medium">
                           Upload Payment Slip
                         </label>
-                        <UploadButton<OurFileRouter>
+                        <UploadButton<OurFileRouter, "paymentSlipUploader">
                           endpoint="paymentSlipUploader"
                           onClientUploadComplete={(res) => {
                             if (res && res[0]) {
@@ -352,7 +352,7 @@ export default function CheckoutPage() {
                           onUploadError={(error: Error) => {
                             toast.error(`Error uploading payment slip: ${error.message}`);
                           }}
-                          className={{
+                          appearance={{
                             container: "w-full",
                             button: "ut-button:bg-primary ut-button:text-primary-foreground ut-button:hover:bg-primary/90"
                           }}
