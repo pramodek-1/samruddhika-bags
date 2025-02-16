@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
+import { writeFile, mkdir, access } from 'fs/promises';
 import { join } from 'path';
 
 export async function POST(request: Request) {
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
     }
 
     const bytes = await file.arrayBuffer();
-    const buffer = Buffer.from(bytes);
+    const buffer = new Uint8Array(bytes);
 
     // Create unique filename
     const uniqueSuffix = `${Date.now()}-${Math.round(Math.random() * 1E9)}`;
@@ -40,26 +40,40 @@ export async function POST(request: Request) {
     
     // Ensure upload directory exists
     const uploadDir = join(process.cwd(), 'public', 'uploads');
+    
     try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (err) {
-      // Ignore error if directory already exists
+      // Check if directory exists
+      try {
+        await access(uploadDir);
+      } catch {
+        // Directory doesn't exist, create it
+        console.log('Creating uploads directory:', uploadDir);
+        await mkdir(uploadDir, { recursive: true });
+      }
+      
+      const filepath = join(uploadDir, filename);
+      console.log('Writing file to:', filepath);
+      
+      // Write file
+      await writeFile(filepath, buffer);
+      
+      console.log('File written successfully');
+      
+      // Return the URL that can be used to access the file
+      return NextResponse.json({ 
+        url: `/uploads/${filename}` 
+      });
+    } catch (error) {
+      console.error('File system error:', error);
+      return NextResponse.json(
+        { error: `Failed to save file: ${error instanceof Error ? error.message : 'Unknown error'}` },
+        { status: 500 }
+      );
     }
-    
-    const filepath = join(uploadDir, filename);
-    
-    // Write file using Uint8Array
-    await writeFile(filepath, new Uint8Array(buffer.buffer));
-    
-    // Return the URL that can be used to access the file
-    return NextResponse.json({ 
-      url: `/uploads/${filename}` 
-    });
-
   } catch (error) {
     console.error('Upload error:', error);
     return NextResponse.json(
-      { error: 'Failed to upload file' },
+      { error: `Failed to upload file: ${error instanceof Error ? error.message : 'Unknown error'}` },
       { status: 500 }
     );
   }
