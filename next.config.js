@@ -10,20 +10,16 @@ const nextConfig = {
   experimental: {
     serverActions: true,
   },
-  // Add configuration for handling uploads
-  async headers() {
-    return [
+  images: {
+    domains: ['www.samruddhikabags.lk'],
+    remotePatterns: [
       {
-        source: '/uploads/:path*',
-        headers: [
-          {
-            key: 'Cache-Control',
-            value: 'public, max-age=3600', // Cache for 1 hour
-          },
-        ],
+        protocol: 'https',
+        hostname: 'www.samruddhikabags.lk',
+        pathname: '/uploads/**',
       },
-    ];
-  },
+    ],
+  }
 }
 
 module.exports = nextConfig;
