@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+.ut-button {
+  @apply bg-primary text-primary-foreground hover:bg-primary/90;
+}
+
+.ut-upload-icon {
+  @apply text-primary;
+}
+
+.ut-label {
+  @apply text-sm font-medium;
+}
+
+.ut-allowed-content {
+  @apply text-xs text-muted-foreground;
+} 

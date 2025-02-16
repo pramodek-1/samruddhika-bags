@@ -12,6 +12,8 @@ import { useRouter } from 'next/navigation';
 import { createOrder } from '@/lib/services/orderService';
 import Image from 'next/image';
 import { Copy } from 'lucide-react';
+import { UploadButton } from "@uploadthing/react";
+import { OurFileRouter } from "../api/uploadthing/core";
 
 interface FormData {
   firstName: string;
@@ -25,7 +27,7 @@ interface FormData {
   postcode: string;
   notes: string;
   paymentMethod: 'cash_on_delivery' | 'bank_transfer';
-  paymentSlip?: File | null;
+  paymentSlipUrl?: string;
 }
 
 export default function CheckoutPage() {
@@ -44,7 +46,7 @@ export default function CheckoutPage() {
     postcode: '',
     notes: '',
     paymentMethod: 'cash_on_delivery',
-    paymentSlip: null,
+    paymentSlipUrl: undefined,
   });
 
   const handleFormChange = (
@@ -56,7 +58,7 @@ export default function CheckoutPage() {
       const file = (e.target as HTMLInputElement).files![0];
       setFormData(prev => ({
         ...prev,
-        paymentSlip: file
+        paymentSlipUrl: file.name
       }));
     } else {
       setFormData(prev => ({
@@ -97,7 +99,7 @@ export default function CheckoutPage() {
       }
     }
 
-    if (formData.paymentMethod === 'bank_transfer' && !formData.paymentSlip) {
+    if (formData.paymentMethod === 'bank_transfer' && !formData.paymentSlipUrl) {
       toast.error('Please upload your payment slip');
       return false;
     }
@@ -123,25 +125,6 @@ export default function CheckoutPage() {
     setIsSubmitting(true);
 
     try {
-      // If there's a payment slip, upload it first
-      let paymentSlipUrl = '';
-      if (formData.paymentMethod === 'bank_transfer' && formData.paymentSlip) {
-        const formDataFile = new FormData();
-        formDataFile.append('file', formData.paymentSlip);
-        
-        const uploadResponse = await fetch('/api/upload', {
-          method: 'POST',
-          body: formDataFile,
-        });
-        
-        if (!uploadResponse.ok) {
-          throw new Error('Failed to upload payment slip');
-        }
-        
-        const uploadData = await uploadResponse.json();
-        paymentSlipUrl = uploadData.url;
-      }
-
       const orderData = {
         firstName: formData.firstName.trim(),
         lastName: formData.lastName.trim(),
@@ -154,7 +137,7 @@ export default function CheckoutPage() {
         postcode: formData.postcode?.trim(),
         notes: formData.notes?.trim(),
         paymentMethod: formData.paymentMethod,
-        paymentSlipUrl,
+        paymentSlipUrl: formData.paymentSlipUrl,
         items: items.map(item => ({
           id: item.id,
           name: item.name,
@@ -352,23 +335,35 @@ export default function CheckoutPage() {
                       </div>
                       
                       <div className="space-y-2">
-                        <label htmlFor="paymentSlip" className="block text-sm font-medium">
+                        <label className="block text-sm font-medium">
                           Upload Payment Slip
                         </label>
-                        <input
-                          type="file"
-                          id="paymentSlip"
-                          accept="image/*,.pdf"
-                          onChange={handleFormChange}
-                          className="block w-full text-sm text-gray-500
-                            file:mr-4 file:py-2 file:px-4
-                            file:rounded-md file:border-0
-                            file:text-sm file:font-semibold
-                            file:bg-primary file:text-primary-foreground
-                            hover:file:bg-primary/90"
+                        <UploadButton<OurFileRouter>
+                          endpoint="paymentSlipUploader"
+                          onClientUploadComplete={(res) => {
+                            if (res && res[0]) {
+                              setFormData(prev => ({
+                                ...prev,
+                                paymentSlipUrl: res[0].url
+                              }));
+                              toast.success("Payment slip uploaded successfully!");
+                            }
+                          }}
+                          onUploadError={(error: Error) => {
+                            toast.error(`Error uploading payment slip: ${error.message}`);
+                          }}
+                          className={{
+                            container: "w-full",
+                            button: "ut-button:bg-primary ut-button:text-primary-foreground ut-button:hover:bg-primary/90"
+                          }}
                         />
+                        {formData.paymentSlipUrl && (
+                          <p className="text-sm text-green-600">
+                            Payment slip uploaded successfully
+                          </p>
+                        )}
                         <p className="text-xs text-muted-foreground">
-                          Accepted formats: JPG, PNG, PDF (Max size: 5MB)
+                          Accepted formats: JPG, PNG, PDF (Max size: 4MB)
                         </p>
                       </div>
                     </div>
