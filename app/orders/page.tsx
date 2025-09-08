@@ -115,7 +115,16 @@ export default function OrdersPage() {
 
   const getTrackingLink = (trackingNumber: string) => {
     // You can customize this based on your shipping provider
-    return `https://track.samruddhibags.com/tracking/${trackingNumber}`;
+    return `https://www.fdedomestic.com/#track`;
+  };
+
+  const handleCopyTracking = async (trackingNumber: string) => {
+    try {
+      await navigator.clipboard.writeText(trackingNumber);
+      toast.success('Tracking number copied');
+    } catch {
+      toast.error('Failed to copy tracking number');
+    }
   };
 
   if (isLoading) {
@@ -172,7 +181,13 @@ export default function OrdersPage() {
                       LKR {formatPrice(order.grandTotal)}
                     </p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex flex-col sm:items-end gap-2">
+                    {order.trackingNumber && (
+                      <div className="text-xs text-muted-foreground text-right">
+                        Tracking: <span className="font-mono">{order.trackingNumber}</span>
+                      </div>
+                    )}
+                    <div className="flex gap-2">
                     {order.trackingNumber && (
                       <Button
                         variant="outline"
@@ -184,6 +199,15 @@ export default function OrdersPage() {
                         <TruckIcon className="h-4 w-4" />
                       </Button>
                     )}
+                    {order.trackingNumber && (
+                      <Button
+                        variant="outline"
+                        onClick={() => handleCopyTracking(order.trackingNumber!)}
+                        title="Copy tracking number"
+                      >
+                        Copy
+                      </Button>
+                    )}
                     <Button
                       variant="ghost"
                       size="icon"
@@ -193,6 +217,7 @@ export default function OrdersPage() {
                     >
                       <Trash2 className="h-4 w-4" />
                     </Button>
+                    </div>
                   </div>
                 </div>
               </div>
