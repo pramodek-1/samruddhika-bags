@@ -508,7 +508,7 @@ export const Invoice: React.FC<InvoiceProps> = ({
         {/* Footer */}
         <div className="text-center border-t border-gray-200 pt-8">
           <p className="text-gray-800 font-medium mb-2">Thank you for your business!</p>
-          <p className="text-gray-600">For any queries, please contact us at support@samruddhika.com</p>
+          <p className="text-gray-600">For any queries, please contact us at support@samruddhika.lk</p>
         </div>
       </div>
 

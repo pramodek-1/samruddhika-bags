@@ -83,6 +83,12 @@ const Sidebar = () => {
             </Button>
           </Link>
 
+          <Link href="/orders">
+            <Button variant="ghost" className="w-full justify-start">
+              Orders
+            </Button>
+          </Link>
+
           <Link href="/contact">
             <Button variant="ghost" className="w-full justify-start">
               Contact
