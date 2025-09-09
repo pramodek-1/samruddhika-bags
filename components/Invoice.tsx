@@ -422,17 +422,19 @@ export const Invoice: React.FC<InvoiceProps> = ({
               <p className="text-xs">Phone: +94 72 414 9720</p>
             </div>
           </div>
-          <div>
-            <h2 className="text-xl font-semibold mb-4 text-gray-800">Bill To:</h2>
-            <div className="space-y-2 text-gray-600">
-              <p className="text-lg font-medium text-gray-700">
+          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 shadow-sm">
+            <h2 className="text-xl font-semibold mb-3 text-amber-800">Bill To</h2>
+            <div className="space-y-1.5">
+              <p className="text-lg font-semibold text-gray-900">
                 {customerDetails.firstName} {customerDetails.lastName}
               </p>
-              <p>{customerDetails.street}</p>
-              <p>{customerDetails.city}, {customerDetails.district}</p>
-              <p>{customerDetails.state}, {customerDetails.postcode}</p>
-              <p>Email: {customerDetails.email}</p>
-              <p>Phone: {customerDetails.phone}</p>
+              <p className="text-sm text-gray-700">{customerDetails.street}</p>
+              <p className="text-sm text-gray-700">{customerDetails.city}, {customerDetails.district}</p>
+              <p className="text-sm text-gray-700">{customerDetails.state}, {customerDetails.postcode}</p>
+              <div className="pt-2 grid grid-cols-1 gap-1.5">
+                <p className="text-sm"><span className="text-gray-600">Email:</span> <span className="font-medium text-gray-800">{customerDetails.email}</span></p>
+                <p className="text-sm"><span className="text-gray-600">Phone:</span> <span className="font-medium text-gray-800">{customerDetails.phone}</span></p>
+              </div>
             </div>
           </div>
         </div>
